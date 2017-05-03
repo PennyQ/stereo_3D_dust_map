@@ -1053,13 +1053,13 @@ def gen_movie():
     # Generate frame
     n_procs = 10
     n_procs = min([n_procs, len(camera_pos['alpha'])])
-    map_fname = '/n/fink1/ggreen/bayestar/output/allsky_2MASS/compact/dust-map-3d-uncompressed.h5'#compact_10samp.h5'
-    
+    # map_fname = '/n/fink1/ggreen/bayestar/output/allsky_2MASS/compact/dust-map-3d-uncompressed.h5'#compact_10samp.h5'
+    map_fname = 'dust-map-3d.h5'
+
     gen_movie_frames(map_fname, plot_props,
                      camera_pos, camera_props,
                      label_props, labels,
                      n_procs=n_procs, verbose=True)
-
 
 
 def main():
