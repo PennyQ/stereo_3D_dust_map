@@ -96,7 +96,11 @@ def load_output_file_raw(f, bounds=None,
             pix_idx_tmp = int(item.attrs['healpix_index'][0])
             nside_tmp = int(item.attrs['nside'][0])
         except:
-            continue
+            # No attr as pix_idx and nside in the datasets (3d-dust-map and compress)
+            # we add them as 1 here for test
+            nside_tmp = 1
+            pix_idx_tmp = 1
+            # continue
 
         # Check if pixel is in bounds
         if bounds != None:
@@ -109,6 +113,7 @@ def load_output_file_raw(f, bounds=None,
         # Pixel location
         pix_idx.append(pix_idx_tmp)
         nside.append(nside_tmp)
+        print('pix_idx, nside ----------', pix_idx, nside)
 
         # Cloud model
         if 'clouds' in item:
@@ -546,6 +551,8 @@ class LOSData:
 
         pix_info, cloud_info, los_info, stack_tmp, DM_EBV_lim = output
 
+        print('--------pix_info', pix_info)
+        
         # Pixel info
         self._has_pixels = True
         self.pix_idx.append(pix_info[0])
@@ -720,7 +727,8 @@ class LOSData:
     def expand_missing(self):
         if not self._compact:
             self.concatenate()
-
+        
+        print('self.nside!!!!' , self.nside)
         n_pix = self.nside[0].size
 
         arr_list = []
@@ -973,6 +981,16 @@ def take_measure(EBV, method):
 class LOSMapper:
     def __init__(self, fnames, **kwargs):
         self.data = load_multiple_outputs(fnames, **kwargs)
+        
+        #------- Combine output from separate processes
+        # This is similar to the above code, but deal with only one file
+        
+        # self.data = LOSData()
+        
+        # self.data.append(load_output_file(fnames[0]))
+        # self.data.concatenate()
+        #-------
+        
         self.data.expand_missing()
 
         self.los_DM_anchor = self.data.get_los_DM_range()
