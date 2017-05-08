@@ -1051,7 +1051,7 @@ def gen_movie():
     }
     
     # Generate frame
-    n_procs = 10
+    n_procs = 2
     n_procs = min([n_procs, len(camera_pos['alpha'])])
     # map_fname = '/n/fink1/ggreen/bayestar/output/allsky_2MASS/compact/dust-map-3d-uncompressed.h5'#compact_10samp.h5'
     map_fname = 'dust-map-3d-uncompressed.h5'
