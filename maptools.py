@@ -2376,8 +2376,8 @@ def test_ortho_proj():
         
         fig.subplots_adjust(left=0.05, right=0.98, bottom=0.05, top=0.95)
         
-        fig.savefig('/n/pan1/www/ggreen/3d/mw_ortho/mw_ortho.%05d.png' % (k+k_start), dpi=300)
-        
+        # fig.savefig('/n/pan1/www/ggreen/3d/mw_ortho/mw_ortho.%05d.png' % (k+k_start), dpi=300)
+        fig.savefig('/n/fink2/xrqian/3d/mw_ortho/mw_ortho.%05d.png'% (k+k_start), dpi=30)
         plt.close(fig)
         del img
 
@@ -2550,8 +2550,8 @@ def test_save_lowres_map():
 
 def main():
     #test_save_lowres_map()
-    test_pinhole_proj()
-    
+    #test_pinhole_proj()
+    test_ortho_proj()
     return 0
 
 

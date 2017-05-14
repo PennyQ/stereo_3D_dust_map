@@ -53,9 +53,10 @@ from alphastacker import AlphaStacker
 
 
 # Locate pan1
-pan1 = '/nfs_pan1/www/ggreen/'
+# pan1 = '/nfs_pan1/www/ggreen/'
+pan1 = '/n/fink2/xrqian/'
 if not os.path.isdir(pan1):
-    pan1 = '/n/pan1/www/ggreen/'
+    pan1 = '~/n/home15/xrqian/'
 
 
 def pm_ang_formatter(theta, pos):
@@ -79,7 +80,7 @@ def proj_points(x, y, z, r_0,
     rho = np.sqrt(x**2. + y**2. + z**2.)
     lon = np.arctan2(y, x)
     lat = np.pi/2. - np.arccos(z / rho)
-    
+   
     if (dth != 0) or (dph != 0):
         # Offset points in space
         ph_hat = [np.sin(lon), -np.cos(lon), np.zeros(lon.shape)]
@@ -986,8 +987,8 @@ def gen_movie():
     plot_props = {
         'fname': pan1 + '3d/allsky_2MASS/AqS/AqS-loop-hq.png', #'3d/allsky_2MASS/grand-tour/simple-loop-att-v2-lq.png',
         'figsize': (10, 7),
-        'dpi': 30,    # TODO: dpi
-        'n_averaged': 7,
+        'dpi': 10,
+        'n_averaged': 3,
         'gamma': 1.,
         'R': 3.1,
         'scale_opacity': 1.,
@@ -1005,7 +1006,7 @@ def gen_movie():
     #camera_pos = paper_renderings()
     #camera_pos = Orion_flythrough(n_frames=400)
     #camera_pos = grand_tour_path(n_frames=20)#1600)
-    camera_pos = circle_local(n_frames=4, l_0=30., b_0=5.) # TODO: n_frames
+    camera_pos = circle_local(n_frames=40, l_0=30., b_0=5.)
     #camera_pos = stereo_pair()
     
     #for key in camera_pos:
@@ -1051,15 +1052,16 @@ def gen_movie():
     }
     
     # Generate frame
-    n_procs = 2
+    n_procs = 10
     n_procs = min([n_procs, len(camera_pos['alpha'])])
     # map_fname = '/n/fink1/ggreen/bayestar/output/allsky_2MASS/compact/dust-map-3d-uncompressed.h5'#compact_10samp.h5'
-    map_fname = 'dust-map-3d-uncompressed.h5'
+    map_fname = './dust-map-3d-uncompressed.h5'    
 
     gen_movie_frames(map_fname, plot_props,
                      camera_pos, camera_props,
                      label_props, labels,
                      n_procs=n_procs, verbose=True)
+
 
 
 def main():
