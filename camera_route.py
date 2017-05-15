@@ -2,6 +2,106 @@
 # TODO: add another camera should also goes here
 import numpy as np
 
+def Orion_flythrough(n_frames=10):
+    '''
+    Fly through the Orion ring.
+    '''
+    
+    l_0, b_0 = -148., -13.
+    a = (90. - b_0) * np.ones(n_frames, dtype='f8')
+    b = l_0 * np.ones(n_frames, dtype='f8')
+    
+    cl, sl = np.cos(np.radians(l_0)), np.sin(np.radians(l_0))
+    cb, sb = np.cos(np.radians(b_0)), np.sin(np.radians(b_0))
+    
+    d = np.linspace(0., 1000., n_frames)
+    x = d * cl * cb
+    y = d * sl * cb
+    z = d * sb
+    r = np.array([x, y, z]).T
+    
+    camera_pos = {
+        'xyz': r,
+        'alpha': a,
+        'beta': b
+    }
+    
+    return camera_pos
+
+
+def paper_renderings():
+    '''
+    A list of camera positions/orientations for
+    possible use in the paper.
+    '''
+    
+    r_0 = np.array([[  0.,  0.,  0.],
+                    [147., 26., 63.],
+                    [144., 41., 67.]])
+    a = np.array([ 96.0, 103.4, 104.1])
+    b = np.array([185.0, 190.2, 196.0])
+    
+    camera_pos = {
+        'xyz': r_0,
+        'alpha': a,
+        'beta': b
+    }
+    
+    return camera_pos
+
+
+def local_dust_path(n_frames=10):
+    '''
+    Construct camera path that:
+        * begins looking at the anticenter
+        * zooms back about 150 pc
+        * pans around by about 20 degrees
+    
+    This path focuses on the Orion molecular cloud complex,
+    Taurus, California and Perseus, i.e. most of the large
+    dust complexes in the Solar neighborhood.
+    '''
+    
+    A = 1.
+    
+    # Zoom out
+    r_0 = np.zeros((n_frames/4, 3), dtype='f8')
+    r_0[:,0] = np.linspace(0., A*150., r_0.shape[0])
+    r_0[:,2] = np.linspace(0., A*55., r_0.shape[0])
+    
+    dz = 20.
+    dR = 200.
+    
+    a_0 = 180./np.pi * np.arctan((r_0[-1,2] + dz) / (r_0[-1,0] + dR))
+    b_0 = 180.
+    
+    a_0 = np.linspace(90. + a_0/2., 90. + a_0, r_0.shape[0])
+    b_0 = b_0 * np.ones(r_0.shape[0])
+    
+    # Rotate around azimuthally, while bobbing in z
+    phi = 25. * np.pi/180. * np.sin(np.linspace(0., 2.*np.pi, int(3./4.*n_frames)))
+    theta = np.linspace(0., 2.*np.pi, phi.size)
+    #phi = np.linspace(0., 2.*np.pi, int(3./4.*n_frames))
+    R = r_0[-1,0]
+    Z = r_0[-1,2]
+    
+    r_1 = np.zeros((phi.size, 3), dtype='f8')
+    r_1[:,0] = R * np.cos(phi)
+    r_1[:,1] = R * np.sin(phi)
+    r_1[:,2] = Z + 20. * np.sin(theta)
+    #r_1[:,2] = Z * np.cos(phi/2.)
+    
+    a_1 = 90. + 180./np.pi * np.arctan((r_1[:,2] + dz) / (R + dR))
+    b_1 = np.mod(180. + 180./np.pi * phi, 360.)
+    
+    camera_pos = {'xyz': np.concatenate([r_0, r_1], axis=0),
+                  'alpha': np.hstack([a_0, a_1]),
+                  'beta': np.hstack([b_0, b_1])}
+    
+    #print camera_pos['alpha']
+    
+    return camera_pos
+
 def Cart2sph(xyz):
     '''
     Input:
@@ -310,10 +410,12 @@ def circle_local(n_frames=20, r_x=50., r_y=50.,
     dr[:,1] = y_0 - y
     dr[:,2] = z_0 - z
     
+    print('dr is: ', dr)
+    
     sph = Cart2sph(dr)
     a = 90. - np.degrees(sph[:,1])
     b = np.degrees(sph[:,2])
-    
+    print('sph is: ', sph)
     #a = 90. * np.ones(n_frames, dtype='f8')
     #b = np.degrees(np.arctan2(y_0-y, x_0-x))
     
@@ -330,20 +432,44 @@ def circle_local(n_frames=20, r_x=50., r_y=50.,
     }
     
     return camera_pos
-    
-def circle_local_pair(n_frames=20, r_x=50., r_y=50.,
+
+# Toe-in method
+def circle_local_left(n_frames=20, r_x=50., r_y=50.,
                  l_0=180., b_0=-10., d_stare=500.):
     '''
     Circle near the Sun.
     '''
-
+    '''
+    Input:
+        xyz  :  (n_points, 3), where the second axis is ordered (x, y, z)
+    
+    Output:
+        sph  :  (n_points, 3), where the second axis is ordered (r, theta, phi).
+                               Here, theta is the latitude, and phi is the
+                               longitude.
+    '''
+    
+    # Center point xyz based on carditian coord centered at sun
     theta = np.linspace(0., 2.*np.pi, n_frames+1)[:-1]
     x = r_x * np.cos(theta)
     y = r_y * np.sin(theta)
     z = np.zeros(n_frames, dtype='f8')
 
     r = np.array([x, y, z]).T
-
+    
+    # Caldulate left camera (assume d_stare is the distance from focus point to sun)
+    # cam_d is the distance between center camera to the sun
+    # cam_angle is the angle between left-center camera line and x axis
+    # eye_d is distance between two eyes
+    cam_d = np.sqrt(x**2 + y**2)
+    cam_angle = np.radians(90) - np.arctan((d_stare-cam_d*np.sin(theta))/cam_d*np.cos(theta))
+    eye_d = 20
+    left_x = cam_d*np.cos(theta) - eye_d/2*np.cos(cam_angle)
+    left_y = cam_d*np.sin(theta) - eye_d/2*np.sin(cam_angle)
+    
+    print('leftx lefty', left_x, left_y)
+    
+    # TODO: the camera angle to the focus point? ??
     l_0 = np.radians(l_0)
     b_0 = np.radians(b_0)
     x_0 = d_stare * np.cos(l_0) * np.cos(b_0)
@@ -351,8 +477,77 @@ def circle_local_pair(n_frames=20, r_x=50., r_y=50.,
     z_0 = d_stare * np.sin(b_0)
 
     dr = np.empty((n_frames,3), dtype='f8')
-    dr[:,0] = x_0 - x
-    dr[:,1] = y_0 - y
+    dr[:,0] = x_0 - left_x
+    dr[:,1] = y_0 - left_y
+    dr[:,2] = z_0 - z
+
+    sph = Cart2sph(dr)
+    a = 90. - np.degrees(sph[:,1])
+    b = np.degrees(sph[:,2])
+
+    #a = 90. * np.ones(n_frames, dtype='f8')
+    #b = np.degrees(np.arctan2(y_0-y, x_0-x))
+
+    #print l_0
+    #print 90. - a
+    #print ''
+    #print b
+    #print ''
+
+    camera_pos = {
+        'xyz': r,
+        'alpha': a,
+        'beta': b
+    }
+
+    return camera_pos
+    
+# Toe-in method
+def circle_local_right(n_frames=20, r_x=50., r_y=50.,
+                 l_0=180., b_0=-10., d_stare=500.):
+    '''
+    Circle near the Sun.
+    '''
+    '''
+    Input:
+        xyz  :  (n_points, 3), where the second axis is ordered (x, y, z)
+    
+    Output:
+        sph  :  (n_points, 3), where the second axis is ordered (r, theta, phi).
+                               Here, theta is the latitude, and phi is the
+                               longitude.
+    '''
+    
+    # Center point xyz based on carditian coord centered at sun
+    theta = np.linspace(0., 2.*np.pi, n_frames+1)[:-1]
+    x = r_x * np.cos(theta)
+    y = r_y * np.sin(theta)
+    z = np.zeros(n_frames, dtype='f8')
+
+    r = np.array([x, y, z]).T
+    
+    # Caldulate left camera (assume d_stare is the distance from focus point to sun)
+    # cam_d is the distance between center camera to the sun
+    # cam_angle is the angle between left-center camera line and x axis
+    # eye_d is distance between two eyes
+    cam_d = np.sqrt(x**2 + y**2)
+    cam_angle = np.radians(90) - np.arctan((d_stare-cam_d*np.sin(theta))/cam_d*np.cos(theta))
+    eye_d = 20
+    right_x = cam_d*np.cos(theta) + eye_d/2*np.cos(cam_angle)
+    right_y = cam_d*np.sin(theta) + eye_d/2*np.sin(cam_angle)
+    
+    print('leftx lefty', left_x, left_y)
+    
+    # TODO: the camera angle to the focus point? ??
+    l_0 = np.radians(l_0)
+    b_0 = np.radians(b_0)
+    x_0 = d_stare * np.cos(l_0) * np.cos(b_0)
+    y_0 = d_stare * np.sin(l_0) * np.cos(b_0)
+    z_0 = d_stare * np.sin(b_0)
+
+    dr = np.empty((n_frames,3), dtype='f8')
+    dr[:,0] = x_0 - left_x
+    dr[:,1] = y_0 - left_y
     dr[:,2] = z_0 - z
 
     sph = Cart2sph(dr)
