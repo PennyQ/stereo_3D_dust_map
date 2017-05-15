@@ -469,21 +469,22 @@ def circle_local_left(n_frames=20, r_x=50., r_y=50.,
     
     print('leftx lefty', left_x, left_y)
     
-    # TODO: the camera angle to the focus point? ??
+    # Transfer focus point from l, b to carditian coor
     l_0 = np.radians(l_0)
     b_0 = np.radians(b_0)
     x_0 = d_stare * np.cos(l_0) * np.cos(b_0)
     y_0 = d_stare * np.sin(l_0) * np.cos(b_0)
     z_0 = d_stare * np.sin(b_0)
-
+    
+    # direction vector from camera to focus point
     dr = np.empty((n_frames,3), dtype='f8')
     dr[:,0] = x_0 - left_x
     dr[:,1] = y_0 - left_y
     dr[:,2] = z_0 - z
 
     sph = Cart2sph(dr)
-    a = 90. - np.degrees(sph[:,1])
-    b = np.degrees(sph[:,2])
+    a = 90. - np.degrees(sph[:,1])  # 90-theta
+    b = np.degrees(sph[:,2])     # phi
 
     #a = 90. * np.ones(n_frames, dtype='f8')
     #b = np.degrees(np.arctan2(y_0-y, x_0-x))
@@ -496,7 +497,7 @@ def circle_local_left(n_frames=20, r_x=50., r_y=50.,
 
     camera_pos = {
         'xyz': r,
-        'alpha': a,
+        'alpha': a, 
         'beta': b
     }
 
