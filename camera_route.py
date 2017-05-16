@@ -455,19 +455,6 @@ def circle_local_left(n_frames=20, r_x=50., r_y=50.,
     y = r_y * np.sin(theta)
     z = np.zeros(n_frames, dtype='f8')
     
-    # Caldulate left camera (assume d_stare is the distance from focus point to sun)
-    # cam_d is the distance between center camera to the sun
-    # cam_angle is the angle between left-center camera line and x axis
-    # eye_d is distance between two eyes
-    # cam_d = np.sqrt(x**2 + y**2)
-#     cam_angle = np.radians(90) - np.arctan((d_stare-cam_d*np.sin(theta))/cam_d*np.cos(theta))
-#     eye_d = 20
-#     left_x = cam_d*np.cos(theta) - eye_d/2*np.cos(cam_angle)
-#     left_y = cam_d*np.sin(theta) - eye_d/2*np.sin(cam_angle)
-
-    
-    # print('leftx lefty', left_x, left_y)
-    
     # Transfer focus point from l, b to carditian coor
     l_0 = np.radians(l_0)
     b_0 = np.radians(b_0)
@@ -479,57 +466,33 @@ def circle_local_left(n_frames=20, r_x=50., r_y=50.,
     af = np.empty((n_frames,3), dtype='f8')
     af[:,0] = x_0 - x
     af[:,1] = y_0 - y
-    af[:,2] = z_0 - z
-    
-    print('af shape', af, af.shape)
-    
+    af[:,2] = z_0 - z    
     
     # \AF\
     af_dist = np.sqrt((x-x_0)**2 + (y-y_0)**2 + (z-z_0)**2)
+    
     # distance between two cameras
     cam_d = 20  
+
+    # vector to north pole    
+    north = [0, 0, 1] 
     
-    print('af dist', af_dist,af_dist.shape, af_dist[:, None].shape)
-    
-    north = [0, 0, 1] # vector to north pole
-    # cam_r = np.cross(af, north)/af_dist*cam_d/2 + np.array([x, y, z])
-    cam_l = np.empty((n_frames, 3), dtype='f8')
-    # cal_l[0,:] = -np.cross(af, north)/af_dist[0]*cam_d/2 + [x, y, z]
-    # cal_l[1,:] = -np.cross(af, north)/af_dist[0]*cam_d/2 + [x, y, z]
-    
+    cam_l = np.empty((n_frames, 3), dtype='f8')    
     cam_l = -np.cross(af, north)/af_dist[:, None]*cam_d/2 
     cam_l[:, 0] += x
     cam_l[:, 1] += y
     cam_l[:, 2] += z
-    print('cam_l', cam_l.shape)
-    #+ [x, y, z]
-    
-    print('left camera', cam_l)
-    
-    r = cam_l
-    
+        
     # direction vector from camera to focus point
     dr = np.empty((n_frames,3), dtype='f8')
     dr = cam_l + [x_0, y_0, z_0]
-    # dr[:,0] = - cam_l[:, 0] + x_0
-    # dr[:,1] = - cam_l[:, 1] + y_0
-    # dr[:,2] = - cam_l[:, 2] + z_0 
 
     sph = Cart2sph(dr)
     a = 90. - np.degrees(sph[:,1])  # 90-theta
     b = np.degrees(sph[:,2])     # phi
 
-    #a = 90. * np.ones(n_frames, dtype='f8')
-    #b = np.degrees(np.arctan2(y_0-y, x_0-x))
-
-    #print l_0
-    #print 90. - a
-    #print ''
-    #print b
-    #print ''
-
     camera_pos = {
-        'xyz': r,
+        'xyz': cam_l,
         'alpha': a, 
         'beta': b
     }
@@ -582,55 +545,32 @@ def circle_local_right(n_frames=20, r_x=50., r_y=50.,
     af = np.empty((n_frames,3), dtype='f8')
     af[:,0] = x_0 - x
     af[:,1] = y_0 - y
-    af[:,2] = z_0 - z
-    
-    print('af shape', af, af.shape)
-    
+    af[:,2] = z_0 - z    
     
     # \AF\
     af_dist = np.sqrt((x-x_0)**2 + (y-y_0)**2 + (z-z_0)**2)
     # distance between two cameras
     cam_d = 20  
+        
+    # vector to north pole    
+    north = [0, 0, 1] 
     
-    print('af dist', af_dist,af_dist.shape, af_dist[:, None].shape)
-    
-    north = [0, 0, 1] # vector to north pole
-    # cam_r = np.cross(af, north)/af_dist*cam_d/2 + np.array([x, y, z])
     cam_r = np.empty((n_frames, 3), dtype='f8')
-    # cal_l[0,:] = -np.cross(af, north)/af_dist[0]*cam_d/2 + [x, y, z]
-    # cal_l[1,:] = -np.cross(af, north)/af_dist[0]*cam_d/2 + [x, y, z]
-    
     cam_r = np.cross(af, north)/af_dist[:, None]*cam_d/2 
     cam_r[:, 0] += x
     cam_r[:, 1] += y
     cam_r[:, 2] += z
-    print('cam_r', cam_r.shape)
-    #+ [x, y, z]
-    
-    r = cam_r
     
     # direction vector from camera to focus point
     dr = np.empty((n_frames,3), dtype='f8')
     dr = cam_r + [x_0, y_0, z_0]
-    # dr[:,0] = - cam_l[:, 0] + x_0
-    # dr[:,1] = - cam_l[:, 1] + y_0
-    # dr[:,2] = - cam_l[:, 2] + z_0 
 
     sph = Cart2sph(dr)
     a = 90. - np.degrees(sph[:,1])  # 90-theta
     b = np.degrees(sph[:,2])     # phi
 
-    #a = 90. * np.ones(n_frames, dtype='f8')
-    #b = np.degrees(np.arctan2(y_0-y, x_0-x))
-
-    #print l_0
-    #print 90. - a
-    #print ''
-    #print b
-    #print ''
-
     camera_pos = {
-        'xyz': r,
+        'xyz': cam_r,
         'alpha': a, 
         'beta': b
     }

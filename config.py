@@ -1,11 +1,23 @@
-from camera_route import circle_local_left
+from camera_route import circle_local_left, circle_local_right
 
-# Output figure store place
-pan1 = '.'
-
-# Input file dir
-# map_fname = '/n/fink1/ggreen/bayestar/output/allsky_2MASS/compact/dust-map-3d-uncompressed.h5'#compact_10samp.h5'
-map_fname = 'data/AquilaSouthLarge2_unified.h5' 
+a = raw_input("run on local or server: [l/s] ")
+if str(a) == 's':
+    # Output figure store place
+    pan1 = '/n/fink2/xrqian'
+    import os
+    if not os.path.isdir(pan1):
+        pan1 = '~/n/home15/xrqian/'
+    # Input file dir
+    # map_fname = '/n/fink1/ggreen/bayestar/output/allsky_2MASS/compact/dust-map-3d-uncompressed.h5'#compact_10samp.h5'
+    map_fname = '../dust-map-3d-uncompressed.h5'
+    
+if str(a) == 'l':
+    pan1 = '.'
+    map_fname = 'data/AquilaSouthLarge2_unified.h5' 
+    
+if str(a) not in ['s', 'l']:
+    print('Wrong input (should be s or l), exiting...')
+    exit()
 
 # Initiate processing core numbers
 n_procs = 10
@@ -34,7 +46,17 @@ plot_props = {
 #camera_pos = Orion_flythrough(n_frames=400)
 #camera_pos = grand_tour_path(n_frames=20)#1600)
 # camera_pos = circle_local(n_frames=3, l_0=30., b_0=5.)
-camera_pos = circle_local_left(n_frames=2, l_0=30., b_0=5.)
+b = raw_input('Render left or right camera? [l/r] ')
+try:
+    f = int(raw_input('How many frames? '))
+except ValueError:
+    print('Not a number, default frame num as 20')
+    f = 20
+if str(b) == 'l':
+    camera_pos = circle_local_left(n_frames=f)
+if str(b) == 'r':
+    camera_pos = circle_local_right(n_frames=f)
+
 #camera_pos = stereo_pair()
 
 #for key in camera_pos:
