@@ -1,4 +1,4 @@
-from camera_route import circle_local_left
+from camera_route import circle_local
 
 # Output figure store place
 pan1 = '.'
@@ -14,7 +14,7 @@ n_procs = 10
 plot_props = {
     'fname': pan1 + '/3d/allsky_2MASS/AqS/AqS-loop-hq.png', #'3d/allsky_2MASS/grand-tour/simple-loop-att-v2-lq.png',
     'figsize': (10, 7),
-    'dpi': 30,
+    'dpi': 100,
     'n_averaged': 1,
     'gamma': 1.,
     'R': 3.1,
@@ -34,20 +34,20 @@ plot_props = {
 #camera_pos = Orion_flythrough(n_frames=400)
 #camera_pos = grand_tour_path(n_frames=20)#1600)
 # camera_pos = circle_local(n_frames=3, l_0=30., b_0=5.)
-camera_pos = circle_local_left(n_frames=1, l_0=30., b_0=5.)
+camera_pos = circle_local(n_frames=1, l_0=30., b_0=5.)
 #camera_pos = stereo_pair()
 
 #for key in camera_pos:
 #    camera_pos[key] = camera_pos[key][:20]
 
-# Camera properties
+# # TODO: Camera properties
 camera_props = {
     'proj_name': 'stereo',
     'fov': 140.,
-    'n_x': 200*2,
+    'n_x': 200*2, # num of pixels
     'n_y': 140*2,
     'n_z': 500*2,
-    'dr': 10./2,  # ???
+    'dr': 10./2,  # 10pc per step
     'z_0': 1., #(0., 0., 0.)
 }
 

@@ -478,7 +478,8 @@ def circle_local_left(n_frames=20, r_x=50., r_y=50.,
     
     # direction vector from camera to focus point
     dr = np.empty((n_frames,3), dtype='f8')
-    dr[:,0] = x_0 - left_x
+    dr
+    [:,0] = x_0 - left_x
     dr[:,1] = y_0 - left_y
     dr[:,2] = z_0 - z
 
@@ -534,10 +535,11 @@ def circle_local_right(n_frames=20, r_x=50., r_y=50.,
     cam_d = np.sqrt(x**2 + y**2)
     cam_angle = np.radians(90) - np.arctan((d_stare-cam_d*np.sin(theta))/cam_d*np.cos(theta))
     eye_d = 20
+    
     right_x = cam_d*np.cos(theta) + eye_d/2*np.cos(cam_angle)
     right_y = cam_d*np.sin(theta) + eye_d/2*np.sin(cam_angle)
     
-    print('leftx lefty', left_x, left_y)
+    print('rightx righty', right_x, right_y)
     
     # TODO: the camera angle to the focus point? ??
     l_0 = np.radians(l_0)
@@ -547,8 +549,8 @@ def circle_local_right(n_frames=20, r_x=50., r_y=50.,
     z_0 = d_stare * np.sin(b_0)
 
     dr = np.empty((n_frames,3), dtype='f8')
-    dr[:,0] = x_0 - left_x
-    dr[:,1] = y_0 - left_y
+    dr[:,0] = x_0 - right_x
+    dr[:,1] = y_0 - right_y
     dr[:,2] = z_0 - z
 
     sph = Cart2sph(dr)
