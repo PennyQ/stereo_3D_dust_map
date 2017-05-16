@@ -27,7 +27,7 @@ plot_props = {
     'fname': pan1 + '/3d/allsky_2MASS/AqS/AqS-loop-hq.png', #'3d/allsky_2MASS/grand-tour/simple-loop-att-v2-lq.png',
     'figsize': (10, 7),
     'dpi': 100,
-    'n_averaged': 1,
+    'n_averaged': 3,
     'gamma': 1.,
     'R': 3.1,
     'scale_opacity': 1.,
@@ -61,15 +61,19 @@ if str(b) == 'r':
 
 #for key in camera_pos:
 #    camera_pos[key] = camera_pos[key][:20]
-
-# # TODO: Camera properties
+try:
+    q = int(raw_input('How good the quality is? [1 the lowest, 10 the highest]'))
+except ValueError:
+    print('Not a number, default as 2')
+    q = 2
+# Camera properties
 camera_props = {
     'proj_name': 'stereo',
-    'fov': 140.,
-    'n_x': 200, # num of pixels
-    'n_y': 140,
-    'n_z': 500,
-    'dr': 10./2,  # 10pc per step
+    'fov': 140.*q,
+    'n_x': 200*q, # num of pixels
+    'n_y': 140*q,
+    'n_z': 500*q,
+    'dr': 10./q,  # 10pc per step
     'z_0': 1., #(0., 0., 0.)
 }
 
