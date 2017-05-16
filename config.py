@@ -1,4 +1,4 @@
-from camera_route import circle_local
+from camera_route import circle_local_left
 
 # Output figure store place
 pan1 = '.'
@@ -34,7 +34,7 @@ plot_props = {
 #camera_pos = Orion_flythrough(n_frames=400)
 #camera_pos = grand_tour_path(n_frames=20)#1600)
 # camera_pos = circle_local(n_frames=3, l_0=30., b_0=5.)
-camera_pos = circle_local(n_frames=1, l_0=30., b_0=5.)
+camera_pos = circle_local_left(n_frames=2, l_0=30., b_0=5.)
 #camera_pos = stereo_pair()
 
 #for key in camera_pos:
@@ -44,9 +44,9 @@ camera_pos = circle_local(n_frames=1, l_0=30., b_0=5.)
 camera_props = {
     'proj_name': 'stereo',
     'fov': 140.,
-    'n_x': 200*2, # num of pixels
-    'n_y': 140*2,
-    'n_z': 500*2,
+    'n_x': 200, # num of pixels
+    'n_y': 140,
+    'n_z': 500,
     'dr': 10./2,  # 10pc per step
     'z_0': 1., #(0., 0., 0.)
 }
