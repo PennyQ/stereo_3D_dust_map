@@ -563,7 +563,8 @@ def main():
                          n_procs=n_procs, verbose=True)    
     elif type(camera_pos) is list:
         # render left camera
-        plot_props['fname'] = plot_props['fname'].split('.png')[0]+'-left'+'.png'
+        f = plot_props['fname']
+        plot_props['fname'] = f.split('.png')[0]+'-left'+'.png'
         n_procs = min([n_procs, len(camera_pos[0]['alpha'])])
         gen_movie_frames(map_fname, plot_props,
                          camera_pos[0], camera_props,
@@ -571,7 +572,7 @@ def main():
                          n_procs=n_procs, verbose=True)
 
         # render right camera                 
-        plot_props['fname'] = plot_props['fname'].split('.png')[0]+'-right'+'.png'
+        plot_props['fname'] = f.split('.png')[0]+'-right'+'.png'
         n_procs = min([n_procs, len(camera_pos[1]['alpha'])])                         
         gen_movie_frames(map_fname, plot_props,
                          camera_pos[1], camera_props,
