@@ -76,7 +76,7 @@ except ValueError:
 # Camera properties
 camera_props = {
     'proj_name': 'stereo',
-    'fov': 140.*q,
+    'fov': 140.,
     'n_x': 200*q, # num of pixels
     'n_y': 140*q,
     'n_z': 500*q,
