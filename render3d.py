@@ -531,9 +531,6 @@ def main():
     #circle_local()
     from config import map_fname, plot_props, camera_props, label_props, camera_pos, n_procs
     
-    # Generate frame
-    n_procs = min([n_procs, len(camera_pos['alpha'])])
-    
     # Points to project to camera coordinates
     labels = {
         'Sol': ((0., 0., 0.), ('left', 'top', 1., -0.75)),
@@ -556,10 +553,30 @@ def main():
         'Galactic Center': ((0., 0., 8000.), ('center', 'center', 0., 0.)),
     }
     
-    gen_movie_frames(map_fname, plot_props,
-                     camera_pos, camera_props,
-                     label_props, labels,
-                     n_procs=n_procs, verbose=True)    
+    if type(camera_pos) is dict:
+        # Generate frame
+        n_procs = min([n_procs, len(camera_pos['alpha'])])
+        
+        gen_movie_frames(map_fname, plot_props,
+                         camera_pos, camera_props,
+                         label_props, labels,
+                         n_procs=n_procs, verbose=True)    
+    elif type(camera_pos) is list:
+        # render left camera
+        plot_props['fname'] = plot_props['fname'].split('.png')[0]+'-left'+'.png'
+        n_procs = min([n_procs, len(camera_pos[0]['alpha'])])
+        gen_movie_frames(map_fname, plot_props,
+                         camera_pos[0], camera_props,
+                         label_props, labels,
+                         n_procs=n_procs, verbose=True)
+
+        # render right camera                 
+        plot_props['fname'] = plot_props['fname'].split('.png')[0]+'-right'+'.png'
+        n_procs = min([n_procs, len(camera_pos[1]['alpha'])])                         
+        gen_movie_frames(map_fname, plot_props,
+                         camera_pos[1], camera_props,
+                         label_props, labels,
+                         n_procs=n_procs, verbose=True)
     return 0
 
 
