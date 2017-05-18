@@ -1,6 +1,7 @@
 # This script includes all codes related to camera route calculation
 # TODO: add another camera should also goes here
 import numpy as np
+import scipy
 
 def Orion_flythrough(n_frames=10):
     '''
@@ -157,14 +158,40 @@ def camera_speed(r_cam, r_cent, R0, Z0, scaling=0.5):
     
     return v
 
-
-
-def gen_interpolated_path(r_anchor, n_frames=10,
-                          cam_k=0.0007, cam_gamma=0.1,
-                          r_att=(0.,0.,0.), R0_att=1000., Z0_att=300.,
-                          r_vcent=(0.,0.,0.), R0_v=1000., Z0_v=1000., v_scaling=0.5,
-                          close_path=False, close_dist=100.,
-                          path_img=None):
+def grand_tour_path(n_frames=10,
+                     cam_k=0.001, cam_gamma=0.15,
+                     r_att=(-300.,0.,-50.), R0_att=500., Z0_att=200.,
+                     r_vcent=(0.,0.,0.), R0_v=500., Z0_v=500., v_scaling=1.,
+                     close_path=True, close_dist=500.,
+                     # path_img=pan1+'3d/allsky_2MASS/grand-tour/simple-loop-att-v2.png')
+                     path_img=None):
+#def gen_interpolated_path(r_anchor, n_frames=10,
+                          # cam_k=0.0007, cam_gamma=0.1,
+                         #  r_att=(0.,0.,0.), R0_att=1000., Z0_att=300.,
+                         #  r_vcent=(0.,0.,0.), R0_v=1000., Z0_v=1000., v_scaling=0.5,
+                         #  close_path=False, close_dist=100.,
+                         #  path_img=None):
+    r_anchor = np.array([
+                        [ 700.,   70.,   70.],
+                        [ 500.,   60.,   50.],
+                        [ 150.,   40.,   10.],
+                        [   5.,   10.,  -10.],
+                        [ -80.,  -40.,  -30.],
+                        [-400., -230., -100.],
+                        [-700., -200., -100.],
+                        [-800., -100.,    0.],
+                        [-700.,   50.,  150.],
+                        [-200.,  300.,  400.],
+                        [ 400.,  400.,  450.],
+                        [1200.,  350.,  400.],
+                        [1100.,  150.,  200.],
+                        [ 850.,   85.,  100.]
+                        #[-350.,    0.,  -20.],
+                        #[   0.,  100.,    0.],
+                        #[ 200.,  400.,  150.],
+                        #[ 400.,  450.,  300.],
+                        #[ 415.,  330.,  305.]
+    ])
     
     if close_path:
         r_anchor = np.vstack([r_anchor, r_anchor[0]])
@@ -270,6 +297,7 @@ def gen_interpolated_path(r_anchor, n_frames=10,
         
         fig.savefig(path_img,
                     dpi=200, bbox_inches='tight')
+        print('save in path_img?', path_img)
     
     sph = Cart2sph(r_cam_frame)
     
@@ -282,7 +310,6 @@ def gen_interpolated_path(r_anchor, n_frames=10,
     return camera_pos
 
 
-def grand_tour_path(n_frames=10):
     '''
     r = np.array([
         #[-250., -250.,    0.],
@@ -355,35 +382,6 @@ def grand_tour_path(n_frames=10):
         [ 415.,  330.,  305.]
     ])
     '''
-    
-    r = np.array([
-        [ 700.,   70.,   70.],
-        [ 500.,   60.,   50.],
-        [ 150.,   40.,   10.],
-        [   5.,   10.,  -10.],
-        [ -80.,  -40.,  -30.],
-        [-400., -230., -100.],
-        [-700., -200., -100.],
-        [-800., -100.,    0.],
-        [-700.,   50.,  150.],
-        [-200.,  300.,  400.],
-        [ 400.,  400.,  450.],
-        [1200.,  350.,  400.],
-        [1100.,  150.,  200.],
-        [ 850.,   85.,  100.]
-        #[-350.,    0.,  -20.],
-        #[   0.,  100.,    0.],
-        #[ 200.,  400.,  150.],
-        #[ 400.,  450.,  300.],
-        #[ 415.,  330.,  305.]
-    ])
-    
-    return gen_interpolated_path(r, n_frames=n_frames,
-                                 cam_k=0.001, cam_gamma=0.15,
-                                 r_att=(-300.,0.,-50.), R0_att=500., Z0_att=200.,
-                                 r_vcent=(0.,0.,0.), R0_v=500., Z0_v=500., v_scaling=1.,
-                                 close_path=True, close_dist=500.,
-                                 path_img=pan1+'3d/allsky_2MASS/grand-tour/simple-loop-att-v2.png')
 
 
 def circle_local(n_frames=20, r_x=50., r_y=50.,
