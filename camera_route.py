@@ -171,6 +171,7 @@ def grand_tour_path(n_frames=10,
                          #  r_vcent=(0.,0.,0.), R0_v=1000., Z0_v=1000., v_scaling=0.5,
                          #  close_path=False, close_dist=100.,
                          #  path_img=None):
+    # TODO: anchor?                     
     r_anchor = np.array([
                         [ 700.,   70.,   70.],
                         [ 500.,   60.,   50.],
@@ -197,15 +198,18 @@ def grand_tour_path(n_frames=10,
         r_anchor = np.vstack([r_anchor, r_anchor[0]])
     
     dr = np.diff(r_anchor, axis=0)
+    
+    # add starting and ending point the the r_anchor
     r_anchor_ext = np.vstack([
         r_anchor[0] - dr[0],
         r_anchor,
         r_anchor[-1] + dr[-1]
-    ])
+    ]) 
     
     x = np.arange(r_anchor_ext.shape[0]).astype('f8')
     #s = scipy.interpolate.interp1d(x, r_anchor_ext,
     #                               kind='cubic', axis=0)
+    # TODO: splwrapper?
     spl = SplWrapper(x, r_anchor_ext, k=3, s=1.5*x.size)
     
     # Determine path length and derivatives along curve
@@ -276,6 +280,7 @@ def grand_tour_path(n_frames=10,
     r_frame = spl(x_frame)
     r_cam_frame = r_cam[k_insert]
     
+    # Seems not used here
     if path_img != None:
         fig = plt.figure(figsize=(8,24), dpi=200)
         

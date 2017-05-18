@@ -2,7 +2,9 @@ from camera_route import *
 import os
 
 
+'''Run on local or server'''
 a = raw_input("run on local or server: [l/s] ")
+
 # render in server
 if str(a) == 's':
     # Output figure store place
@@ -34,7 +36,6 @@ if str(a) not in ['s', 'l']:
 #camera_pos = Orion_flythrough(n_frames=400)
 #camera_pos = grand_tour_path(n_frames=20)#1600)
 # camera_pos = circle_local(n_frames=3, l_0=30., b_0=5.)
-mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)]'))
 
 try:
     f = int(raw_input('How many frames? '))
@@ -43,6 +44,7 @@ except ValueError:
     f = 20
 
 '''Set camera render mode'''
+mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)|local dust(ld)]'))
 if mode == 'cl':
     fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'
     
@@ -56,7 +58,10 @@ if mode == 'cl':
 if mode == 'gt':
     fname = '/3d/allsky_2MASS/grand-tour/dust-map-gt.png'
     camera_pos = grand_tour_path(n_frames=f)
-
+    
+if mode == 'ld':
+    fname = '/3d/allsky_2MASS/local-dust/dust-map-ld.png'
+    camera_pos = grand_tour_path(n_frames=f)
 
 # Initiate processing core numbers
 n_procs = 10
