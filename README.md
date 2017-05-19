@@ -7,7 +7,7 @@ The code needs Python libraries `healpy` and `h5py` for calculating coordinate a
 
 Also `dvipng` program to convert the DVI output of the TeX typesetting system into PNG image format. On the server you can:
     
-    module  load divpng (error as: “dvipng: not found” when creating matplotlib figure)
+    module load divpng
     
 ### Usage: 
 Please modify the data and output directory in `config.py`, and then run `render3d.py` in the terminal. The code will collect your input to set rendering quality.
@@ -20,4 +20,12 @@ Please modify the data and output directory in `config.py`, and then run `render
 -r is the frame rate (like how many frames per sec).
 
 The script `side-to-side.sh` to generate a side-by-side video is also in this repo, please copy it to your output dir and modify it with correct figure name. It requires frame images for left and right camera.
-  
+
+### Trouble shooting:
+1. Error: sh: latex: command not found on MacOS, details as below:
+
+    Exception in Tkinter callback
+    <... a long Traceback here ...>
+    RuntimeError: LaTeX was not able to process the following string: 'lp'
+    
+Solution: add /Library/TeX/texbin to the PATH in ~/.zshrc or ~/.bashrc , ref. http://www.tug.org/mactex/elcapitan.html
