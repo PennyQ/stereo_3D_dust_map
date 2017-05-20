@@ -205,11 +205,11 @@ def grand_tour_path(n_frames=10,
         r_anchor,
         r_anchor[-1] + dr[-1]
     ]) 
-    
+    # distance alone the path
     x = np.arange(r_anchor_ext.shape[0]).astype('f8')
     #s = scipy.interpolate.interp1d(x, r_anchor_ext,
     #                               kind='cubic', axis=0)
-    # TODO: splwrapper?
+    # new path funtion
     spl = SplWrapper(x, r_anchor_ext, k=3, s=1.5*x.size)
     
     # Determine path length and derivatives along curve

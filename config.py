@@ -69,7 +69,7 @@ n_procs = 10
 # Misc settings
 plot_props = {
     'fname': pan1 + fname, #'3d/allsky_2MASS/grand-tour/simple-loop-att-v2-lq.png',
-    'figsize': (10, 7),
+    'figsize': (10, 7),  # figure aspect ratio
     'dpi': 100,
     'n_averaged': 3,
     'gamma': 1.,
