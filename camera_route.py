@@ -475,7 +475,7 @@ def circle_local_left(n_frames=20, r_x=50., r_y=50.,
     af_dist = np.sqrt((x-x_0)**2 + (y-y_0)**2 + (z-z_0)**2)
     
     # distance between two cameras
-    cam_d = 20  
+    cam_d = 40  
 
     # vector to north pole    
     north = [0, 0, 1] 
@@ -553,7 +553,7 @@ def circle_local_right(n_frames=20, r_x=50., r_y=50.,
     # \AF\
     af_dist = np.sqrt((x-x_0)**2 + (y-y_0)**2 + (z-z_0)**2)
     # distance between two cameras
-    cam_d = 20  
+    cam_d = 40  
         
     # vector to north pole    
     north = [0, 0, 1] 
