@@ -36,6 +36,7 @@ if str(a) not in ['s', 'l']:
 #camera_pos = Orion_flythrough(n_frames=400)
 #camera_pos = grand_tour_path(n_frames=20)#1600)
 # camera_pos = circle_local(n_frames=3, l_0=30., b_0=5.)
+axis_on = True
 
 try:
     f = int(raw_input('How many frames? '))
@@ -46,8 +47,7 @@ except ValueError:
 '''Set camera render mode'''
 mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)|local dust(ld)|nw-270(nw)]'))
 if mode == 'cl':
-    fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'
-    
+    fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'    
     b = raw_input('Render side-by-side? [y/n] ')
     if str(b) == 'y':
         camera_pos = [circle_local_left(n_frames=f), circle_local_right(n_frames=f)]
@@ -66,6 +66,7 @@ if mode == 'ld':
 if mode == 'nw':
     fname = '/3d/allsky_2MASS/nw-270/nw-270.png'
     camera_pos = nw_270(n_frames=f)
+    axis_on = False
 
 # Initiate processing core numbers
 n_procs = 10
