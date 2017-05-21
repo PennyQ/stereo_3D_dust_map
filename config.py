@@ -44,7 +44,7 @@ except ValueError:
     f = 20
 
 '''Set camera render mode'''
-mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)|local dust(ld)]'))
+mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)|local dust(ld)|nw-270(nw)]'))
 if mode == 'cl':
     fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'
     
@@ -62,6 +62,10 @@ if mode == 'gt':
 if mode == 'ld':
     fname = '/3d/allsky_2MASS/local-dust/dust-map-ld.png'
     camera_pos = grand_tour_path(n_frames=f)
+    
+if mode == 'nw':
+    fname = '/3d/allsky_2MASS/nw-270/nw-270.png'
+    camera_pos = nw_270(n_frames=f)
 
 # Initiate processing core numbers
 n_procs = 10

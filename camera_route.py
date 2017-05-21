@@ -579,3 +579,17 @@ def circle_local_right(n_frames=20, r_x=50., r_y=50.,
     }
 
     return camera_pos
+    
+def nw_270(n_frames=20, d_stare=500.):
+    # spherical coordinates in physics, cnetered on sun
+    phi = np.linspace(0., 2.*np.pi, n_frames+1)[:-1]
+    theta = np.zeros(n_frames)
+    xyz = np.zeros((n_frames, 3))
+    print(np.degrees(theta))
+    
+    camera_pos = {
+        'xyz': xyz,
+        'alpha': 90.-theta,
+        'beta': np.degrees(phi)
+    }
+    return camera_pos
