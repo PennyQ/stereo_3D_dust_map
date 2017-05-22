@@ -205,11 +205,11 @@ def grand_tour_path(n_frames=10,
         r_anchor,
         r_anchor[-1] + dr[-1]
     ]) 
-    
+    # distance alone the path
     x = np.arange(r_anchor_ext.shape[0]).astype('f8')
     #s = scipy.interpolate.interp1d(x, r_anchor_ext,
     #                               kind='cubic', axis=0)
-    # TODO: splwrapper?
+    # new path funtion
     spl = SplWrapper(x, r_anchor_ext, k=3, s=1.5*x.size)
     
     # Determine path length and derivatives along curve
@@ -578,4 +578,18 @@ def circle_local_right(n_frames=20, r_x=50., r_y=50.,
         'beta': b
     }
 
+    return camera_pos
+    
+def nw_270(n_frames=20, d_stare=500.):
+    # spherical coordinates in physics, cnetered on sun
+    phi = np.linspace(0., 2.*np.pi, n_frames+1)[:-1]
+    theta = np.zeros(n_frames)
+    xyz = np.zeros((n_frames, 3))
+    print(np.degrees(theta))
+    
+    camera_pos = {
+        'xyz': xyz,
+        'alpha': 90.-theta,
+        'beta': np.degrees(phi)
+    }
     return camera_pos

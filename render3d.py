@@ -146,7 +146,7 @@ def lbd2xyz(l, b, d):
 
 def gen_movie_frames(map_fname, plot_props,
                      camera_pos, camera_props,
-                     label_props, labels,
+                     label_props, labels, axis_on,
                      **kwargs):
     n_procs = kwargs.pop('n_procs', 1)
     
@@ -170,7 +170,7 @@ def gen_movie_frames(map_fname, plot_props,
                 args=(frame_q, lock,
                       map_fname, plot_props,
                       camera_pos, camera_props,
-                      label_props, labels),
+                      label_props, labels, axis_on),
                 kwargs=kwargs
             )
         
@@ -188,7 +188,7 @@ def gen_movie_frames(map_fname, plot_props,
 def gen_frame_worker(frame_q, lock,
                      map_fname, plot_props,
                      camera_pos, camera_props,
-                     label_props, labels,
+                     label_props, labels, axis_on,
                      **kwargs):
     # Copy to avoid overwriting original
     plot_props = plot_props.copy()
@@ -249,7 +249,7 @@ def gen_frame_worker(frame_q, lock,
             
             gen_frame(mapper3d, camera_pos_frame, cam_props_cpy,
                                 plot_props_cpy, label_props_cpy,
-                                labels, **kwargs_cpy)
+                                labels, axis_on,**kwargs_cpy)
             
             t_end = time.time()
             print 't = %.1f s' % (t_end - t_start)
@@ -262,7 +262,20 @@ def gen_frame_worker(frame_q, lock,
 
 def gen_frame(mapper3d, camera_pos, camera_props,
                         plot_props, label_props,
-                        labels, **kwargs):
+                        labels, axis_on, **kwargs):
+    
+    if not axis_on and 'Sol' in labels:
+        # remove sol, 0 and 90 from labels
+        no_axis_labels = dict(labels)
+        
+        labels.pop('Sol')
+        labels.pop(u'0°')
+        labels.pop(u'90°')
+        print('-----------labes are ', labels)
+
+        # 'Sol': ((0., 0., 0.), ('left', 'top', 1., -0.75)),
+        # u'0°': ((0, -32.01, 47.17), ('center', 'center', 0., 0.)),
+        # u'90°': ((90, -32.01, 47.17), ('center', 'center', 0., 0.)),
     
     #
     # Read settings
@@ -448,58 +461,60 @@ def gen_frame(mapper3d, camera_pos, camera_props,
     ax.set_xlim([-w, w])
     ax.set_ylim([-h, h])
     
-    # Project position of Sun and coord-system axes
-    r_ovplt = {}
+    if axis_on: 
+        # Project position of Sun and coord-system axes
+        r_ovplt = {}
     
-    r_ovplt['Sun'] = np.array([[0., 0., 0.]])
+        r_ovplt['Sun'] = np.array([[0., 0., 0.]])
     
-    range_tmp = np.linspace(-0.2, 1., 1000)
-    zeros_tmp = np.zeros(range_tmp.size)
-    const_tmp = -25. * np.ones(range_tmp.size)
+        range_tmp = np.linspace(-0.2, 1., 1000)
+        zeros_tmp = np.zeros(range_tmp.size)
+        const_tmp = -25. * np.ones(range_tmp.size)
     
-    r_ovplt['xaxis'] = np.vstack([25.*range_tmp, zeros_tmp, const_tmp]).T
-    r_ovplt['yaxis'] = np.vstack([zeros_tmp, 25.*range_tmp, const_tmp]).T
-    r_ovplt['zaxis'] = np.vstack([zeros_tmp, zeros_tmp, 25.*(range_tmp-1.)]).T
+        r_ovplt['xaxis'] = np.vstack([25.*range_tmp, zeros_tmp, const_tmp]).T
+        r_ovplt['yaxis'] = np.vstack([zeros_tmp, 25.*range_tmp, const_tmp]).T
+        r_ovplt['zaxis'] = np.vstack([zeros_tmp, zeros_tmp, 25.*(range_tmp-1.)]).T
     
-    x_proj = {}
-    y_proj = {}
+        x_proj = {}
+        y_proj = {}
     
-    for key, r_pts in r_ovplt.iteritems():
-        tmp = proj_points(r_pts[:,0], r_pts[:,1], r_pts[:,2],
-                          r_cam, alpha, beta, proj_name, fov)
-        in_bounds = tmp[2]
-        x_proj[key] = tmp[0][in_bounds]
-        y_proj[key] = tmp[1][in_bounds]
+        for key, r_pts in r_ovplt.iteritems():
+            tmp = proj_points(r_pts[:,0], r_pts[:,1], r_pts[:,2],
+                              r_cam, alpha, beta, proj_name, fov)
+            in_bounds = tmp[2]
+            x_proj[key] = tmp[0][in_bounds]
+            y_proj[key] = tmp[1][in_bounds]
         
-        #print '%s: %d in bounds' % (key, np.sum(in_bounds))
+            #print '%s: %d in bounds' % (key, np.sum(in_bounds))
     
-    # Dot for the Sun
-    ax.scatter(x_proj['Sun'], y_proj['Sun'],
-               s=24, c='#116999',
-               edgecolor='none', alpha=0.75,
-               zorder=5002)
-    ax.scatter(x_proj['Sun'], y_proj['Sun'],
-               s=8, c='#499ECC',
-               edgecolor='none', alpha=1.00,
-               zorder=5003)
+        # Dot for the Sun
+        ax.scatter(x_proj['Sun'], y_proj['Sun'],
+                   s=24, c='#116999',
+                   edgecolor='none', alpha=0.75,
+                   zorder=5002)
+        ax.scatter(x_proj['Sun'], y_proj['Sun'],
+                   s=8, c='#499ECC',
+                   edgecolor='none', alpha=1.00,
+                   zorder=5003)
     
-    # Plot axes of Galactic coordinate system
-    for key in ['xaxis', 'yaxis', 'zaxis']:
-        ax.plot(x_proj[key], y_proj[key], ls='-', lw=2.,
-                                          c='b', alpha=0.25,
-                                          zorder=5000)
-        ax.plot(x_proj[key], y_proj[key], ls='-', lw=1.25,
-                                          c='#1E9EE3', alpha=0.9,
-                                          zorder=5001)
+        # Plot axes of Galactic coordinate system
+        for key in ['xaxis', 'yaxis', 'zaxis']:
+            ax.plot(x_proj[key], y_proj[key], ls='-', lw=2.,
+                                              c='b', alpha=0.25,
+                                              zorder=5000)
+            ax.plot(x_proj[key], y_proj[key], ls='-', lw=1.25,
+                                              c='#1E9EE3', alpha=0.9,
+                                              zorder=5001)
+        print('axis_on?', axis_on)
     
-    # Formatting
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(pm_ang_formatter))
-    ax.yaxis.set_major_formatter(ticker.FuncFormatter(pm_ang_formatter))
+        # Formatting
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(pm_ang_formatter))
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(pm_ang_formatter))
     
-    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=6))
-    ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
-    ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
-    ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
+        ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=6))
+        ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
+        ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
+        ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
     
     title = r'$\left( \alpha, \, \beta, \, x, \, y,  \, z \right) = \left( '
     title += r'%.1f^{\circ} \ %.1f^{\circ} \ \ ' % (alpha, beta)
@@ -529,7 +544,7 @@ def gen_frame(mapper3d, camera_pos, camera_props,
 def main():
     #grand_tour_path(n_frames=100)
     #circle_local()
-    from config import map_fname, plot_props, camera_props, label_props, camera_pos, n_procs
+    from config import map_fname, plot_props, camera_props, label_props, camera_pos, n_procs, axis_on
     
     # Points to project to camera coordinates
     labels = {
@@ -560,7 +575,7 @@ def main():
         gen_movie_frames(map_fname, plot_props,
                          camera_pos, camera_props,
                          label_props, labels,
-                         n_procs=n_procs, verbose=True)    
+                         n_procs=n_procs, verbose=True, axis_on=axis_on)    
     elif type(camera_pos) is list:
         # render left camera
         f = plot_props['fname']
@@ -569,7 +584,7 @@ def main():
         gen_movie_frames(map_fname, plot_props,
                          camera_pos[0], camera_props,
                          label_props, labels,
-                         n_procs=n_procs, verbose=True)
+                         n_procs=n_procs, verbose=True, axis_on=axis_on)
 
         # render right camera                 
         plot_props['fname'] = f.split('.png')[0]+'-right'+'.png'
@@ -577,7 +592,7 @@ def main():
         gen_movie_frames(map_fname, plot_props,
                          camera_pos[1], camera_props,
                          label_props, labels,
-                         n_procs=n_procs, verbose=True)
+                         n_procs=n_procs, verbose=True, axis_on=axis_on)
     return 0
 
 

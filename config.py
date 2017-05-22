@@ -36,6 +36,7 @@ if str(a) not in ['s', 'l']:
 #camera_pos = Orion_flythrough(n_frames=400)
 #camera_pos = grand_tour_path(n_frames=20)#1600)
 # camera_pos = circle_local(n_frames=3, l_0=30., b_0=5.)
+axis_on = True
 
 try:
     f = int(raw_input('How many frames? '))
@@ -44,10 +45,9 @@ except ValueError:
     f = 20
 
 '''Set camera render mode'''
-mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)|local dust(ld)]'))
+mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)|local dust(ld)|nw-270(nw)]'))
 if mode == 'cl':
-    fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'
-    
+    fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'    
     b = raw_input('Render side-by-side? [y/n] ')
     if str(b) == 'y':
         camera_pos = [circle_local_left(n_frames=f), circle_local_right(n_frames=f)]
@@ -62,6 +62,11 @@ if mode == 'gt':
 if mode == 'ld':
     fname = '/3d/allsky_2MASS/local-dust/dust-map-ld.png'
     camera_pos = grand_tour_path(n_frames=f)
+    
+if mode == 'nw':
+    fname = '/3d/allsky_2MASS/nw-270/nw-270.png'
+    camera_pos = nw_270(n_frames=f)
+    axis_on = False
 
 # Initiate processing core numbers
 n_procs = 10
@@ -69,7 +74,7 @@ n_procs = 10
 # Misc settings
 plot_props = {
     'fname': pan1 + fname, #'3d/allsky_2MASS/grand-tour/simple-loop-att-v2-lq.png',
-    'figsize': (10, 7),
+    'figsize': (10, 7),  # figure aspect ratio
     'dpi': 100,
     'n_averaged': 3,
     'gamma': 1.,
