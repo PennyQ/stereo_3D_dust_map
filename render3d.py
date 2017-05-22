@@ -264,12 +264,15 @@ def gen_frame(mapper3d, camera_pos, camera_props,
                         plot_props, label_props,
                         labels, axis_on, **kwargs):
     
-    if not axis_on:
+    if not axis_on and 'Sol' in labels:
         # remove sol, 0 and 90 from labels
+        no_axis_labels = dict(labels)
+        
         labels.pop('Sol')
         labels.pop(u'0°')
         labels.pop(u'90°')
         print('-----------labes are ', labels)
+
         # 'Sol': ((0., 0., 0.), ('left', 'top', 1., -0.75)),
         # u'0°': ((0, -32.01, 47.17), ('center', 'center', 0., 0.)),
         # u'90°': ((90, -32.01, 47.17), ('center', 'center', 0., 0.)),
