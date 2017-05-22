@@ -164,7 +164,7 @@ def grand_tour_path(n_frames=10,
                      r_vcent=(0.,0.,0.), R0_v=500., Z0_v=500., v_scaling=1.,
                      close_path=True, close_dist=500.,
                      # path_img=pan1+'3d/allsky_2MASS/grand-tour/simple-loop-att-v2.png')
-                     path_img=None):
+                     path_img=None, side_by_side=False):
 #def gen_interpolated_path(r_anchor, n_frames=10,
                           # cam_k=0.0007, cam_gamma=0.1,
                          #  r_att=(0.,0.,0.), R0_att=1000., Z0_att=300.,
@@ -209,7 +209,7 @@ def grand_tour_path(n_frames=10,
     x = np.arange(r_anchor_ext.shape[0]).astype('f8')
     #s = scipy.interpolate.interp1d(x, r_anchor_ext,
     #                               kind='cubic', axis=0)
-    # new path funtion
+    # new path funtion, for each two points which lies on a plane
     spl = SplWrapper(x, r_anchor_ext, k=3, s=1.5*x.size)
     
     # Determine path length and derivatives along curve
@@ -219,6 +219,7 @@ def grand_tour_path(n_frames=10,
     dr_tmp = np.diff(r_fine, axis=0)
     ds = np.sqrt(np.sum(dr_tmp**2, axis=1))
     
+    # determine camera speed
     r_vcent = np.array(r_vcent)
     v = camera_speed(r_fine, r_vcent,
                      R0_v, Z0_v,
@@ -312,7 +313,10 @@ def grand_tour_path(n_frames=10,
         'beta': np.degrees(sph[:,2])
     }
     
-    return camera_pos
+    if not side_by_side:
+        return camera_pos
+    else:
+        return grand_tour_side_by_side(n_frames=n_frames, AF=r_cam_frame, camera_pos=camera_pos)
 
 
     '''
@@ -388,6 +392,52 @@ def grand_tour_path(n_frames=10,
     ])
     '''
 
+def grand_tour_side_by_side(n_frames, AF, camera_pos):
+    # AF = r_cam_frame
+    # \AF\
+    AF_norm = np.sqrt(AF[:, 0]**2 + AF[:, 2]**2 + AF[:, 2]**2)
+    
+    # distance between two cameras
+    cam_d = 40  
+
+    # vector to north pole    
+    north = [0, 0, 1] 
+    
+    delta = np.empty((n_frames, 3), dtype='f8')
+    delta = np.cross(AF, north)/AF_norm[:, None]*cam_d/2 
+    
+    # left camera
+    A1 = np.empty((n_frames, 3), dtype='f8')    
+    A1[:, 0] = camera_pos['xyz'][0] - delta[:, 0]
+    A1[:, 1] = camera_pos['xyz'][1] - delta[:, 1]
+    A1[:, 2] = camera_pos['xyz'][2] - delta[:, 2]
+    
+    #right camrea
+    A2 = np.empty((n_frames, 3), dtype='f8') 
+    A2[:, 0] = camera_pos['xyz'][0] + delta[:, 0]
+    A2[:, 1] = camera_pos['xyz'][1] + delta[:, 1]
+    A2[:, 2] = camera_pos['xyz'][2] + delta[:, 2]
+    
+    A1F = -delta + AF
+    A2F = delta + AF
+    
+    sph1 = Cart2sph(A1F)
+    sph2 = Cart2sph(A2F)
+    
+    camera_pos1 = {
+        'xyz': A1,
+        'alpha': 90. - np.degrees(sph1[:,1]),
+        'beta': np.degrees(sph1[:,2])
+    }
+    camera_pos2 = {
+            'xyz': A2,
+            'alpha': 90. - np.degrees(sph2[:,1]),
+            'beta': np.degrees(sph2[:,2])
+    }
+    print('---------------A1, A2', [A1, A2])
+    print('-----------return?', [camera_pos1, camera_pos2])
+    return [camera_pos1, camera_pos2]
+    
 
 def circle_local(n_frames=20, r_x=50., r_y=50.,
                  l_0=180., b_0=-10., d_stare=500.):
