@@ -408,15 +408,15 @@ def grand_tour_side_by_side(n_frames, AF, camera_pos):
     
     # left camera
     A1 = np.empty((n_frames, 3), dtype='f8')    
-    A1[:, 0] = camera_pos['xyz'][0] - delta[:, 0]
-    A1[:, 1] = camera_pos['xyz'][1] - delta[:, 1]
-    A1[:, 2] = camera_pos['xyz'][2] - delta[:, 2]
+    A1[:, 0] = camera_pos['xyz'][:,0] - delta[:, 0]
+    A1[:, 1] = camera_pos['xyz'][:,1] - delta[:, 1]
+    A1[:, 2] = camera_pos['xyz'][:,2] - delta[:, 2]
     
     #right camrea
     A2 = np.empty((n_frames, 3), dtype='f8') 
-    A2[:, 0] = camera_pos['xyz'][0] + delta[:, 0]
-    A2[:, 1] = camera_pos['xyz'][1] + delta[:, 1]
-    A2[:, 2] = camera_pos['xyz'][2] + delta[:, 2]
+    A2[:, 0] = camera_pos['xyz'][:,0] + delta[:, 0]
+    A2[:, 1] = camera_pos['xyz'][:,1] + delta[:, 1]
+    A2[:, 2] = camera_pos['xyz'][:,2] + delta[:, 2]
     
     A1F = -delta + AF
     A2F = delta + AF
