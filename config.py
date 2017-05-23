@@ -57,6 +57,7 @@ if mode == 'cl':
 # TODO: add side-by-side render
 if mode == 'gt':
     fname = '/3d/allsky_2MASS/grand-tour/dust-map-gt.png'
+    b = raw_input('Render side-by-side? [y/n] ')
     if str(b) == 'y':
         camera_pos = grand_tour_path(n_frames=f, side_by_side=True)
     if str(b) == 'n':

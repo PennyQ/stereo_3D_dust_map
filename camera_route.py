@@ -468,7 +468,7 @@ def circle_local(n_frames=20, r_x=50., r_y=50.,
     sph = Cart2sph(dr)
     a = 90. - np.degrees(sph[:,1])
     b = np.degrees(sph[:,2])
-    print('sph is: ', sph)
+    print('----------sph is: ', sph[:, 0])
     #a = 90. * np.ones(n_frames, dtype='f8')
     #b = np.degrees(np.arctan2(y_0-y, x_0-x))
     
