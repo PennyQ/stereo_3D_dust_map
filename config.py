@@ -50,7 +50,7 @@ if mode == 'cl':
     fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'    
     b = raw_input('Render side-by-side? [y/n] ')
     if str(b) == 'y':
-        camera_pos = [circle_local_left(n_frames=f), circle_local_right(n_frames=f)]
+        camera_pos = circle_local(n_frames=f, side_by_side=True)
     if str(b) == 'n':
         camera_pos = circle_local(n_frames=f)
         

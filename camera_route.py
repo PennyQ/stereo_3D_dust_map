@@ -124,7 +124,54 @@ def Cart2sph(xyz):
     
     return sph
 
+def gen_side_by_side(n_frames, AF, camera_pos):
+    # AF = r_cam_frame
+    # \AF\
+    AF_norm = np.sqrt(AF[:, 0]**2 + AF[:, 2]**2 + AF[:, 2]**2)
+    
+    # distance between two cameras
+    cam_d = 40  
 
+    # vector to north pole    
+    north = [0, 0, 1] 
+    
+    # AA1 direction
+    delta = np.empty((n_frames, 3), dtype='f8')
+    delta = np.cross(AF, north)/AF_norm[:, None]*cam_d/2 
+    
+    # left camera
+    A1 = np.empty((n_frames, 3), dtype='f8')    
+    A1[:, 0] = camera_pos['xyz'][:,0] - delta[:, 0]
+    A1[:, 1] = camera_pos['xyz'][:,1] - delta[:, 1]
+    A1[:, 2] = camera_pos['xyz'][:,2] - delta[:, 2]
+    
+    #right camrea
+    A2 = np.empty((n_frames, 3), dtype='f8') 
+    A2[:, 0] = camera_pos['xyz'][:,0] + delta[:, 0]
+    A2[:, 1] = camera_pos['xyz'][:,1] + delta[:, 1]
+    A2[:, 2] = camera_pos['xyz'][:,2] + delta[:, 2]
+    
+    A1F = -delta + AF
+    A2F = delta + AF
+    
+    sph1 = Cart2sph(A1F)
+    sph2 = Cart2sph(A2F)
+    
+    print('********sph1, spy2', sph1, sph2)
+    
+    camera_pos1 = {
+        'xyz': A1,
+        'alpha': 90. - np.degrees(sph1[:,1]),
+        'beta': np.degrees(sph1[:,2])
+    }
+    camera_pos2 = {
+            'xyz': A2,
+            'alpha': 90. - np.degrees(sph2[:,1]),
+            'beta': np.degrees(sph2[:,2])
+    }
+    return [camera_pos1, camera_pos2]
+
+#---------------grand_tour_path--------------------
 class SplWrapper:
     def __init__(self, x, y, **kwargs):
         self._s = [scipy.interpolate.UnivariateSpline(x, y[:,k], **kwargs) for k in xrange(y.shape[1])]
@@ -316,7 +363,7 @@ def grand_tour_path(n_frames=10,
     if not side_by_side:
         return camera_pos
     else:
-        return grand_tour_side_by_side(n_frames=n_frames, AF=r_cam_frame, camera_pos=camera_pos)
+        return gen_side_by_side(n_frames=n_frames, AF=r_cam_frame, camera_pos=camera_pos)
 
 
     '''
@@ -391,56 +438,10 @@ def grand_tour_path(n_frames=10,
         [ 415.,  330.,  305.]
     ])
     '''
-
-def grand_tour_side_by_side(n_frames, AF, camera_pos):
-    # AF = r_cam_frame
-    # \AF\
-    AF_norm = np.sqrt(AF[:, 0]**2 + AF[:, 2]**2 + AF[:, 2]**2)
-    
-    # distance between two cameras
-    cam_d = 40  
-
-    # vector to north pole    
-    north = [0, 0, 1] 
-    
-    delta = np.empty((n_frames, 3), dtype='f8')
-    delta = np.cross(AF, north)/AF_norm[:, None]*cam_d/2 
-    
-    # left camera
-    A1 = np.empty((n_frames, 3), dtype='f8')    
-    A1[:, 0] = camera_pos['xyz'][:,0] - delta[:, 0]
-    A1[:, 1] = camera_pos['xyz'][:,1] - delta[:, 1]
-    A1[:, 2] = camera_pos['xyz'][:,2] - delta[:, 2]
-    
-    #right camrea
-    A2 = np.empty((n_frames, 3), dtype='f8') 
-    A2[:, 0] = camera_pos['xyz'][:,0] + delta[:, 0]
-    A2[:, 1] = camera_pos['xyz'][:,1] + delta[:, 1]
-    A2[:, 2] = camera_pos['xyz'][:,2] + delta[:, 2]
-    
-    A1F = -delta + AF
-    A2F = delta + AF
-    
-    sph1 = Cart2sph(A1F)
-    sph2 = Cart2sph(A2F)
-    
-    camera_pos1 = {
-        'xyz': A1,
-        'alpha': 90. - np.degrees(sph1[:,1]),
-        'beta': np.degrees(sph1[:,2])
-    }
-    camera_pos2 = {
-            'xyz': A2,
-            'alpha': 90. - np.degrees(sph2[:,1]),
-            'beta': np.degrees(sph2[:,2])
-    }
-    print('---------------A1, A2', [A1, A2])
-    print('-----------return?', [camera_pos1, camera_pos2])
-    return [camera_pos1, camera_pos2]
     
 
 def circle_local(n_frames=20, r_x=50., r_y=50.,
-                 l_0=180., b_0=-10., d_stare=500.):
+                 l_0=180., b_0=-10., d_stare=500., side_by_side=False):
     '''
     Circle near the Sun.
     '''
@@ -462,13 +463,11 @@ def circle_local(n_frames=20, r_x=50., r_y=50.,
     dr[:,0] = x_0 - x
     dr[:,1] = y_0 - y
     dr[:,2] = z_0 - z
-    
-    print('dr is: ', dr)
-    
+        
     sph = Cart2sph(dr)
     a = 90. - np.degrees(sph[:,1])
     b = np.degrees(sph[:,2])
-    print('----------sph is: ', sph[:, 0])
+    print('----------sph is: ', sph)
     #a = 90. * np.ones(n_frames, dtype='f8')
     #b = np.degrees(np.arctan2(y_0-y, x_0-x))
     
@@ -483,8 +482,10 @@ def circle_local(n_frames=20, r_x=50., r_y=50.,
         'alpha': a,
         'beta': b
     }
-    
-    return camera_pos
+    if side_by_side:
+        return gen_side_by_side(n_frames=n_frames, AF=dr, camera_pos=camera_pos)
+    else:
+        return camera_pos
 
 # Toe-in method
 def circle_local_left(n_frames=20, r_x=50., r_y=50.,
