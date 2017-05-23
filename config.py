@@ -57,7 +57,10 @@ if mode == 'cl':
 # TODO: add side-by-side render
 if mode == 'gt':
     fname = '/3d/allsky_2MASS/grand-tour/dust-map-gt.png'
-    camera_pos = grand_tour_path(n_frames=f, side_by_side=True)
+    if str(b) == 'y':
+        camera_pos = grand_tour_path(n_frames=f, side_by_side=True)
+    if str(b) == 'n':
+        camera_pos = grand_tour_path(n_frames=f)
     
 if mode == 'ld':
     fname = '/3d/allsky_2MASS/local-dust/dust-map-ld.png'
