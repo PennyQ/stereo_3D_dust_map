@@ -127,19 +127,20 @@ def Cart2sph(xyz):
 def gen_side_by_side(n_frames, AF, camera_pos):
     # AF = r_cam_frame
     # \AF\
-    AF_norm = np.sqrt(AF[:, 0]**2 + AF[:, 1]**2 + AF[:, 2]**2)
+    from numpy import linalg as LA 
+    
+    # AF_norm = np.sqrt(AF[:, 0]**2 + AF[:, 1]**2 + AF[:, 2]**2)
     
     # distance between two cameras
-    cam_d = 40  
+    cam_d = 20  
 
     # vector to north pole    
     north = [0, 0, 1] 
     
     # AA1 direction
     delta = np.empty((n_frames, 3), dtype='f8')
-    from numpy import linalg as LA 
     c = np.cross(AF, north)
-    delta = c/AF_norm[:, None]/LA.norm(c, axis=1)[:, None]*cam_d/2 
+    delta = c/LA.norm(AF, axis=1)[:, None]/LA.norm(c, axis=1)[:, None]*cam_d/2 
     
     # left camera
     A1 = np.empty((n_frames, 3), dtype='f8')    
