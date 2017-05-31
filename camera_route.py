@@ -127,7 +127,7 @@ def Cart2sph(xyz):
 def gen_side_by_side(n_frames, AF, camera_pos):
     # AF = r_cam_frame
     # \AF\
-    AF_norm = np.sqrt(AF[:, 0]**2 + AF[:, 2]**2 + AF[:, 2]**2)
+    AF_norm = np.sqrt(AF[:, 0]**2 + AF[:, 1]**2 + AF[:, 2]**2)
     
     # distance between two cameras
     cam_d = 40  
@@ -137,7 +137,9 @@ def gen_side_by_side(n_frames, AF, camera_pos):
     
     # AA1 direction
     delta = np.empty((n_frames, 3), dtype='f8')
-    delta = np.cross(AF, north)/AF_norm[:, None]*cam_d/2 
+    from numpy import linalg as LA 
+    c = np.cross(AF, north)
+    delta = c/AF_norm[:, None]/LA.norm(c, axis=1)[:, None]*cam_d/2 
     
     # left camera
     A1 = np.empty((n_frames, 3), dtype='f8')    
@@ -157,7 +159,7 @@ def gen_side_by_side(n_frames, AF, camera_pos):
     sph1 = Cart2sph(A1F)
     sph2 = Cart2sph(A2F)
     
-    print('********sph1, spy2', sph1, sph2)
+    print('********sph1, sph2', sph1, sph2)
     
     camera_pos1 = {
         'xyz': A1,
@@ -485,151 +487,8 @@ def circle_local(n_frames=20, r_x=50., r_y=50.,
     if side_by_side:
         return gen_side_by_side(n_frames=n_frames, AF=dr, camera_pos=camera_pos)
     else:
-        return camera_pos
+        return camera_pos   
 
-# Toe-in method
-def circle_local_left(n_frames=20, r_x=50., r_y=50.,
-                 l_0=180., b_0=-10., d_stare=500.):
-    '''
-    Circle near the Sun.
-    '''
-    '''
-    Input:
-        xyz  :  (n_points, 3), where the second axis is ordered (x, y, z)
-    
-    Output:
-        sph  :  (n_points, 3), where the second axis is ordered (r, theta, phi).
-                               Here, theta is the latitude, and phi is the
-                               longitude.
-    '''
-    
-    # Center point xyz based on carditian coord centered at sun
-    theta = np.linspace(0., 2.*np.pi, n_frames+1)[:-1]
-    x = r_x * np.cos(theta)
-    y = r_y * np.sin(theta)
-    z = np.zeros(n_frames, dtype='f8')
-    
-    # Transfer focus point from l, b to carditian coor
-    l_0 = np.radians(l_0)
-    b_0 = np.radians(b_0)
-    x_0 = d_stare * np.cos(l_0) * np.cos(b_0)
-    y_0 = d_stare * np.sin(l_0) * np.cos(b_0)
-    z_0 = d_stare * np.sin(b_0)
-    
-    # vector from camera (A) to focus point (F)
-    af = np.empty((n_frames,3), dtype='f8')
-    af[:,0] = x_0 - x
-    af[:,1] = y_0 - y
-    af[:,2] = z_0 - z    
-    
-    # \AF\
-    af_dist = np.sqrt((x-x_0)**2 + (y-y_0)**2 + (z-z_0)**2)
-    
-    # distance between two cameras
-    cam_d = 40  
-
-    # vector to north pole    
-    north = [0, 0, 1] 
-    
-    cam_l = np.empty((n_frames, 3), dtype='f8')    
-    cam_l = -np.cross(af, north)/af_dist[:, None]*cam_d/2 
-    cam_l[:, 0] += x
-    cam_l[:, 1] += y
-    cam_l[:, 2] += z
-        
-    # direction vector from camera to focus point
-    dr = np.empty((n_frames,3), dtype='f8')
-    dr = cam_l + [x_0, y_0, z_0]
-
-    sph = Cart2sph(dr)
-    a = 90. - np.degrees(sph[:,1])  # 90-theta
-    b = np.degrees(sph[:,2])     # phi
-
-    camera_pos = {
-        'xyz': cam_l,
-        'alpha': a, 
-        'beta': b
-    }
-
-    return camera_pos
-    
-# Toe-in method
-def circle_local_right(n_frames=20, r_x=50., r_y=50.,
-                 l_0=180., b_0=-10., d_stare=500.):
-    '''
-    Circle near the Sun.
-    '''
-    '''
-    Input:
-        xyz  :  (n_points, 3), where the second axis is ordered (x, y, z)
-    
-    Output:
-        sph  :  (n_points, 3), where the second axis is ordered (r, theta, phi).
-                               Here, theta is the latitude, and phi is the
-                               longitude.
-    '''
-    
-    # Center point xyz based on carditian coord centered at sun
-    theta = np.linspace(0., 2.*np.pi, n_frames+1)[:-1]
-    x = r_x * np.cos(theta)
-    y = r_y * np.sin(theta)
-    z = np.zeros(n_frames, dtype='f8')
-    
-    # Caldulate left camera (assume d_stare is the distance from focus point to sun)
-    # cam_d is the distance between center camera to the sun
-    # cam_angle is the angle between left-center camera line and x axis
-    # eye_d is distance between two eyes
-    # cam_d = np.sqrt(x**2 + y**2)
-#     cam_angle = np.radians(90) - np.arctan((d_stare-cam_d*np.sin(theta))/cam_d*np.cos(theta))
-#     eye_d = 20
-#     left_x = cam_d*np.cos(theta) - eye_d/2*np.cos(cam_angle)
-#     left_y = cam_d*np.sin(theta) - eye_d/2*np.sin(cam_angle)
-
-    
-    # print('leftx lefty', left_x, left_y)
-    
-    # Transfer focus point from l, b to carditian coor
-    l_0 = np.radians(l_0)
-    b_0 = np.radians(b_0)
-    x_0 = d_stare * np.cos(l_0) * np.cos(b_0)
-    y_0 = d_stare * np.sin(l_0) * np.cos(b_0)
-    z_0 = d_stare * np.sin(b_0)
-    
-    # vector from camera (A) to focus point (F)
-    af = np.empty((n_frames,3), dtype='f8')
-    af[:,0] = x_0 - x
-    af[:,1] = y_0 - y
-    af[:,2] = z_0 - z    
-    
-    # \AF\
-    af_dist = np.sqrt((x-x_0)**2 + (y-y_0)**2 + (z-z_0)**2)
-    # distance between two cameras
-    cam_d = 40  
-        
-    # vector to north pole    
-    north = [0, 0, 1] 
-    
-    cam_r = np.empty((n_frames, 3), dtype='f8')
-    cam_r = np.cross(af, north)/af_dist[:, None]*cam_d/2 
-    cam_r[:, 0] += x
-    cam_r[:, 1] += y
-    cam_r[:, 2] += z
-    
-    # direction vector from camera to focus point
-    dr = np.empty((n_frames,3), dtype='f8')
-    dr = cam_r + [x_0, y_0, z_0]
-
-    sph = Cart2sph(dr)
-    a = 90. - np.degrees(sph[:,1])  # 90-theta
-    b = np.degrees(sph[:,2])     # phi
-
-    camera_pos = {
-        'xyz': cam_r,
-        'alpha': a, 
-        'beta': b
-    }
-
-    return camera_pos
     
 def nw_270(n_frames=20, d_stare=500.):
     # spherical coordinates in physics, cnetered on sun
