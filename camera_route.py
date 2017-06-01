@@ -137,10 +137,11 @@ def gen_side_by_side(n_frames, AF, camera_pos):
     # vector to north pole    
     north = [0, 0, 1] 
     
-    # AA1 direction
+    # AA1 vector or delta = N x AF / (\N\*\AF\*sin(theta)) * |AA1\
     delta = np.empty((n_frames, 3), dtype='f8')
     c = np.cross(AF, north)
-    delta = c/LA.norm(AF, axis=1)[:, None]/LA.norm(c, axis=1)[:, None]*cam_d/2 
+    sin_theta = np.sin(np.radians(camera_pos['alpha']))
+    delta = c /(LA.norm(AF, axis=1)[:, None]*LA.norm(c, axis=1)[:, None]*sin_theta[:, None]) * (cam_d/2)
     
     # left camera
     A1 = np.empty((n_frames, 3), dtype='f8')    
@@ -159,18 +160,35 @@ def gen_side_by_side(n_frames, AF, camera_pos):
     
     sph1 = Cart2sph(A1F)
     sph2 = Cart2sph(A2F)
+        
+    print('------AF is', AF)
+    print('------A from AF is', camera_pos['xyz'])
+    print('------F from AF is', camera_pos['xyz']-AF)
+    print('------F from A1F is', A1-A1F)
+    print('------F from A2F is', A2-A2F)
+    # three F are the same!
     
-    print('********sph1, sph2', sph1, sph2)
-    
+    # cross viewing
+    # camera_pos1 = {
+    #     'xyz': A1,
+    #     'alpha': 90. - np.degrees(sph1[:,1]),
+    #     'beta': np.degrees(sph1[:,2])
+    # }
+    # camera_pos2 = {
+    #         'xyz': A2,
+    #         'alpha': 90. - np.degrees(sph2[:,1]),
+    #         'beta': np.degrees(sph2[:,2])
+    # }
+    # parallel viewing
     camera_pos1 = {
         'xyz': A1,
-        'alpha': 90. - np.degrees(sph1[:,1]),
-        'beta': np.degrees(sph1[:,2])
+        'alpha': camera_pos['alpha'],
+        'beta': camera_pos['beta']
     }
     camera_pos2 = {
             'xyz': A2,
-            'alpha': 90. - np.degrees(sph2[:,1]),
-            'beta': np.degrees(sph2[:,2])
+            'alpha': camera_pos['alpha'],
+            'beta': camera_pos['beta']
     }
     return [camera_pos1, camera_pos2]
 
