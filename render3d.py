@@ -458,7 +458,7 @@ def gen_frame(mapper3d, camera_pos, camera_props,
                             aspect='equal', extent=extent,
                             zorder=0)
     
-    ax.set_xlim([-w, w])
+    ax.set_xlim([-w+10, w])
     ax.set_ylim([-h, h])
     
     if axis_on: 
