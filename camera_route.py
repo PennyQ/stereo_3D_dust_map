@@ -128,11 +128,11 @@ def gen_side_by_side(n_frames, AF, camera_pos):
     # AF = r_cam_frame
     # \AF\
     from numpy import linalg as LA 
-    
+    AF = AF*500
     # AF_norm = np.sqrt(AF[:, 0]**2 + AF[:, 1]**2 + AF[:, 2]**2)
     
     # distance between two cameras
-    cam_d = 20  
+    cam_d = 4  
 
     # vector to north pole    
     north = [0, 0, 1] 
@@ -140,9 +140,13 @@ def gen_side_by_side(n_frames, AF, camera_pos):
     # AA1 vector or delta = N x AF / (\N\*\AF\*sin(theta)) * |AA1\
     delta = np.empty((n_frames, 3), dtype='f8')
     c = np.cross(AF, north)
-    sin_theta = np.sin(np.radians(camera_pos['alpha']))
-    delta = c /(LA.norm(AF, axis=1)[:, None]*LA.norm(c, axis=1)[:, None]*sin_theta[:, None]) * (cam_d/2)
+    #sin_theta = np.sin(np.radians(camera_pos['alpha']))
+    delta = c /LA.norm(c, axis=1)[:, None]* (cam_d/2)
     
+    print('-------delta', delta)
+    print('c', c)
+    print('AF', AF)
+    #print('sin_theta', sin_theta)
     # left camera
     A1 = np.empty((n_frames, 3), dtype='f8')    
     A1[:, 0] = camera_pos['xyz'][:,0] - delta[:, 0]
@@ -169,27 +173,27 @@ def gen_side_by_side(n_frames, AF, camera_pos):
     # three F are the same!
     
     # cross viewing
-    # camera_pos1 = {
-    #     'xyz': A1,
-    #     'alpha': 90. - np.degrees(sph1[:,1]),
-    #     'beta': np.degrees(sph1[:,2])
-    # }
-    # camera_pos2 = {
-    #         'xyz': A2,
-    #         'alpha': 90. - np.degrees(sph2[:,1]),
-    #         'beta': np.degrees(sph2[:,2])
-    # }
-    # parallel viewing
     camera_pos1 = {
-        'xyz': A1,
-        'alpha': camera_pos['alpha'],
-        'beta': camera_pos['beta']
+         'xyz': A1,
+         'alpha': 90. - np.degrees(sph1[:,1]),
+         'beta': np.degrees(sph1[:,2])
     }
     camera_pos2 = {
-            'xyz': A2,
-            'alpha': camera_pos['alpha'],
-            'beta': camera_pos['beta']
+             'xyz': A2,
+             'alpha': 90. - np.degrees(sph2[:,1]),
+             'beta': np.degrees(sph2[:,2])
     }
+    # parallel viewing
+    #camera_pos1 = {
+    #    'xyz': A1,
+    #    'alpha': camera_pos['alpha'],
+    #    'beta': camera_pos['beta']
+    #}
+    #camera_pos2 = {
+    #        'xyz': A2,
+    #        'alpha': camera_pos['alpha'],
+    #        'beta': camera_pos['beta']
+    #}
     return [camera_pos1, camera_pos2]
 
 #---------------grand_tour_path--------------------
