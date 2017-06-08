@@ -567,7 +567,7 @@ def main():
         u'ρ Oph': ((-5., 17., 200.), ('center', 'center', 25., 0.)),
         'Galactic Center': ((0., 0., 8000.), ('center', 'center', 0., 0.)),
     }
-    
+    print('||||||||||||carera_pos', type(camera_pos))
     if type(camera_pos) is dict:
         # Generate frame
         n_procs = min([n_procs, len(camera_pos['alpha'])])
