@@ -1,34 +1,15 @@
 from camera_route import *
 import os
 
+'''    
+Add environment path to ~/.bashrc (depent on which shell the user use):
 
-'''Run on local or server'''
-a = raw_input("run on local or server: [l/s] ")
+PAN1 is the output dir
+MAP_FNAME is the dust map dataset dir
 
-# render in server
-if str(a) == 's':
-    # Output figure store place
-    pan1 = '/n/fink2/xrqian'
-    if not os.path.isdir(pan1):
-        pan1 = '~/n/home15/xrqian/'
-    # Input file dir
-    # map_fname = '/n/fink1/ggreen/bayestar/output/allsky_2MASS/compact/dust-map-3d-uncompressed.h5'#compact_10samp.h5'
-    map_fname = '../dust-map-3d-uncompressed.h5'
-    # fname = '/3d/allsky_2MASS/dust-map-stereo-pair/dust-map.png'
-    
-# render on local laptop, need to modify config file   
-if str(a) == 'l':
-    pan1 = '.'
-    map_fname = 'data/AquilaSouthLarge2_unified.h5' 
-    # fname = '/3d/allsky_2MASS/AqS/AqS-loop-hq.png'
-    
-# users set input & output dir
-if str(a) not in ['s', 'l']:
-    pan1 = str(raw_input('Enter the main dir for storing output figures: '))
-    # fname = str(raw_input('Enter figure name: (end as .png)'))
-    if not os.path.isdir(pan1):
-        print('Input dir not exist, exiting...')
-        exit()
+'''
+pan1 = os.environ['PAN1']
+map_fname = os.environ['MAP_FNAME']
     
 # Camera path/orientation
 #camera_pos = local_dust_path(n_frames=400)
