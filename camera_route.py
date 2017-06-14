@@ -132,7 +132,7 @@ def gen_side_by_side(n_frames, AF, camera_pos):
     # AF_norm = np.sqrt(AF[:, 0]**2 + AF[:, 1]**2 + AF[:, 2]**2)
     
     # distance between two cameras
-    cam_d = 4  
+    cam_d = 10  
 
     # vector to north pole    
     north = [0, 0, 1] 
