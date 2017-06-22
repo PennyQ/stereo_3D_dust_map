@@ -253,6 +253,10 @@ def gen_frame_worker(frame_q, lock,
             
             t_end = time.time()
             print 't = %.1f s' % (t_end - t_start)
+            logfile=open('log.txt', 'a')
+            logfile.write('\n')
+            logfile.write('Frame%d = %.1f s \n' %(k, t_end-t_start))
+            logfile.close()
             
         except Queue.Empty:
             print 'Worker finished.'
