@@ -1,6 +1,8 @@
 from camera_route import *
 import os
 
+logfile = open('log.txt', 'w')
+logfile.truncate()
 '''    
 Add environment path to ~/.bashrc (depent on which shell the user use):
 
@@ -21,12 +23,14 @@ axis_on = True
 
 try:
     f = int(raw_input('How many frames? '))
+    logfile.write('How many frames? '+ str(f)+ '\n')
 except ValueError:
     print('Not a number, default frame num as 20')
     f = 20
 
 '''Set camera render mode'''
 mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)|local dust(ld)|nw-270(nw)]'))
+logfile.write('Which camera mode? ' + mode + '\n')
 if mode == 'cl':
     fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'    
     b = raw_input('Render side-by-side? [y/n] ')
@@ -78,6 +82,8 @@ plot_props = {
 #    camera_pos[key] = camera_pos[key][:20]
 try:
     q = int(raw_input('How good the quality is? [1 the lowest, 10 the highest]'))
+    logfile.write('Rendering quality ' + str(q) + '\n')
+    
 except ValueError:
     print('Not a number, default as 2')
     q = 2
@@ -98,4 +104,6 @@ label_props = {
     'text_color': (0, 166, 255),#(255, 255, 255),
     'stroke_color': (9, 73, 92),#(0, 0, 0) #(192, 225, 235)
 }
- 
+logfile.write('\n')
+logfile.write('Image Rendering Time(s) \n')
+logfile.close()

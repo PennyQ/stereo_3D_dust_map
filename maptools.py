@@ -1716,8 +1716,12 @@ class Mapper3D:
         
         if verbose:
             dt = time.time() - t_start
+            logfile=open('log.txt', 'a')
+            logfile.write('%0.2f '%dt)
             sys.stdout.write('] %.1f s \n' % dt)
             sys.stdout.flush()
+            logfile.close()
+            
         
         #print 'img_idx:', img_idx
         
