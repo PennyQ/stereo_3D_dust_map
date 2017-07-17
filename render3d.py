@@ -553,7 +553,7 @@ def gen_frame(mapper3d, camera_pos, camera_props,
     plt.close(fig)
     del img
     
-    logfile.write('matplotlib time %.2f' % (time.time()-midtime))
+    logfile.write(' matplotlib time %.2f' % (time.time()-midtime))
     
 
 
