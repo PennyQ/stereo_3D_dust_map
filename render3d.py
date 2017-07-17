@@ -246,15 +246,16 @@ def gen_frame_worker(frame_q, lock,
                 kwargs['lock'] = None
             
             # Generate frame
-            
+            logfile=open('log.txt', 'a')
+            logfile.write('\n')
+            logfile.write('Frame%d, time except gen_frame %.1f s\n' % (k, time.time()-t_start))
             gen_frame(mapper3d, camera_pos_frame, cam_props_cpy,
                                 plot_props_cpy, label_props_cpy,
                                 labels, axis_on,**kwargs_cpy)
             
             t_end = time.time()
             print 't = %.1f s' % (t_end - t_start)
-            logfile=open('log.txt', 'a')
-            logfile.write('\n')
+            # logfile.write('\n')
             logfile.write('Frame%d = %.1f s \n' %(k, t_end-t_start))
             logfile.close()
             
@@ -386,6 +387,9 @@ def gen_frame(mapper3d, camera_pos, camera_props,
     # Initialize class to stack images and text
     stacker = AlphaStacker(img, d_images)
     
+    logfile = open('log.txt', 'a')
+    start = time.time()
+    
     #
     # Set up labels
     #
@@ -431,6 +435,7 @@ def gen_frame(mapper3d, camera_pos, camera_props,
                             fontcolor=c_txt,
                             stroke_width=stroke_width,
                             stroke_color=c_stroke)
+                            
     
     # Plot image
     w = fov/2.
@@ -444,6 +449,10 @@ def gen_frame(mapper3d, camera_pos, camera_props,
     img_rendered = stacker.render(oversample=oversample,
                                   fg=foreground,
                                   bg=background)
+                                  
+    midtime = time.time()
+    logfile.write('render scene time %.2f' % (midtime-start))
+    
     
     # Save PIL image
     #pimg = Image.fromarray((255.*img_rendered[:,:,:3]).astype('u1'), mode='RGB')
@@ -543,6 +552,9 @@ def gen_frame(mapper3d, camera_pos, camera_props,
     
     plt.close(fig)
     del img
+    
+    logfile.write('matplotlib time %.2f' % (time.time()-midtime))
+    
 
 
 def main():
