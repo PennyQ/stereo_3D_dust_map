@@ -164,10 +164,25 @@ def gen_movie_frames(map_fname, plot_props,
     # Spawn worker processes to plot images
     procs = []
     
+    # get mapper here
+    # Load 3D map
+    fname = [map_fname]
+    mapper = maptools.LOSMapper(fname, max_samples=5) # load data and map to pixel
+    nside = mapper.data.nside[0]
+    pix_idx = mapper.data.pix_idx[0]
+    los_EBV = mapper.data.los_EBV[0]
+    DM_min, DM_max = mapper.data.DM_EBV_lim[:2]
+    
+    mapper3d = maptools.Mapper3D(nside, pix_idx, los_EBV,
+                                 DM_min, DM_max)  # map from pixel to cart
+    
+    
     for i in xrange(n_procs):
+        
+        # setup a list of processes that we want to run
         p = multiprocessing.Process(
                 target=gen_frame_worker,
-                args=(frame_q, lock,
+                args=(mapper3d, frame_q, lock,
                       map_fname, plot_props,
                       camera_pos, camera_props,
                       label_props, labels, axis_on),
@@ -175,17 +190,20 @@ def gen_movie_frames(map_fname, plot_props,
             )
         
         procs.append(p)
-    
+
+    # Run processes
     for p in procs:
         p.start()
-    
+
+    # Exit the completed processes    
     for p in procs:
         p.join()
     
     print 'Done.'
 
-
-def gen_frame_worker(frame_q, lock,
+# TODO: remove loading data from the Queue, make it a buffer 
+# share loaded data in memory
+def gen_frame_worker(mapper3d, frame_q, lock,
                      map_fname, plot_props,
                      camera_pos, camera_props,
                      label_props, labels, axis_on,
@@ -204,16 +222,8 @@ def gen_frame_worker(frame_q, lock,
     
     np.random.seed(seed=seed)
     
-    # Load 3D map
-    fname = [map_fname]
-    mapper = maptools.LOSMapper(fname, max_samples=5)
-    nside = mapper.data.nside[0]
-    pix_idx = mapper.data.pix_idx[0]
-    los_EBV = mapper.data.los_EBV[0]
-    DM_min, DM_max = mapper.data.DM_EBV_lim[:2]
-    
-    mapper3d = maptools.Mapper3D(nside, pix_idx, los_EBV,
-                                 DM_min, DM_max)
+
+
     
     # Loop through queue
     first_img = True
@@ -436,7 +446,6 @@ def gen_frame(mapper3d, camera_pos, camera_props,
                             stroke_width=stroke_width,
                             stroke_color=c_stroke)
                             
-    
     # Plot image
     w = fov/2.
     h = float(n_y)/float(n_x) * w
@@ -445,13 +454,13 @@ def gen_frame(mapper3d, camera_pos, camera_props,
     fig = plt.figure(figsize=figsize, dpi=dpi)
     ax = fig.add_subplot(1,1,1)
     
+    scene_time = time.time()
     # Render scene
     img_rendered = stacker.render(oversample=oversample,
                                   fg=foreground,
                                   bg=background)
                                   
-    midtime = time.time()
-    logfile.write('render scene time %.2f' % (midtime-start))
+    logfile.write('render scene time %.2f' % (time.time()-scene_time))
     
     
     # Save PIL image
@@ -553,8 +562,6 @@ def gen_frame(mapper3d, camera_pos, camera_props,
     plt.close(fig)
     del img
     
-    logfile.write(' matplotlib time %.2f' % (time.time()-midtime))
-    
 
 
 def main():
@@ -591,7 +598,8 @@ def main():
         gen_movie_frames(map_fname, plot_props,
                          camera_pos, camera_props,
                          label_props, labels,
-                         n_procs=n_procs, verbose=True, axis_on=axis_on)    
+                         n_procs=n_procs, verbose=True, axis_on=axis_on)  
+                           
     elif type(camera_pos) is list:
         # render left camera
         f = plot_props['fname']
