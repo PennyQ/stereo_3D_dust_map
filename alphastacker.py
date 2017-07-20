@@ -205,10 +205,10 @@ class AlphaStacker:
                 sample_start = time.time()
                 args, kwargs = f_oversample(args, kwargs, oversample)
                 oversample_time = time.time()
-                print('f_oversample time', oversample_time-sample_start)
+                # print('f_oversample time', oversample_time-sample_start)
                 
                 img = f_render(canvas[::-1], *args, **kwargs)
-                print('f_render time', time.time()-oversample_time)
+                # print('f_render time', time.time()-oversample_time)
                 img = np.swapaxes(img, 0, 1)
             else:
                 raise ValueError('Both ka and ko are -1')
