@@ -1,8 +1,12 @@
 from camera_route import *
 import os
+import datetime
 
-logfile = open('log.txt', 'w')
+logfile = open('log.txt', 'a')
 logfile.truncate()
+logfile.write('\n')
+logfile.write('---------'+str(datetime.datetime.now())+'-------'+'\n')
+
 '''    
 Add environment path to ~/.bashrc (depent on which shell the user use):
 
