@@ -594,7 +594,8 @@ def main():
     if type(camera_pos) is dict:
         # Generate frame
         n_procs = min([n_procs, len(camera_pos['alpha'])])
-        
+        # f = plot_props['fname']
+        # plot_props['fname'] = f.split('.png')[0]+'-stop'+'.png'
         gen_movie_frames(map_fname, plot_props,
                          camera_pos, camera_props,
                          label_props, labels,

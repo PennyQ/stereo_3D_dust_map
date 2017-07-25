@@ -21,6 +21,10 @@ map_fname = os.environ['MAP_FNAME']
 # camera_pos = circle_local(n_frames=3, l_0=30., b_0=5.)
 axis_on = True
 
+stop_f = int(raw_input('Render interrupt at (0 mean none)[file name change required in render3d.py]'))
+if stop_f == 0:
+    stop_f = None
+
 try:
     f = int(raw_input('How many frames? '))
     logfile.write('How many frames? '+ str(f)+ '\n')
@@ -35,18 +39,18 @@ if mode == 'cl':
     fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'    
     b = raw_input('Render side-by-side? [y/n] ')
     if str(b) == 'y':
-        camera_pos = circle_local(n_frames=f, side_by_side=True)
+        camera_pos = circle_local(n_frames=f, side_by_side=True, stop_f=stop_f)
     if str(b) == 'n':
-        camera_pos = circle_local(n_frames=f)
+        camera_pos = circle_local(n_frames=f, stop_f=stop_f)
         
 # TODO: add side-by-side render
 if mode == 'gt':
     fname = '/3d/allsky_2MASS/grand-tour/dust-map-gt.png'
     b = raw_input('Render side-by-side? [y/n] ')
     if str(b) == 'y':
-        camera_pos = grand_tour_path(n_frames=f, side_by_side=True)
+        camera_pos = grand_tour_path(n_frames=f, side_by_side=True, stop_f=stop_f)
     if str(b) == 'n':
-        camera_pos = grand_tour_path(n_frames=f)
+        camera_pos = grand_tour_path(n_frames=f, stop_f=stop_f)
     
 if mode == 'ld':
     fname = '/3d/allsky_2MASS/local-dust/dust-map-ld.png'

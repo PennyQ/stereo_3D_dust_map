@@ -124,7 +124,7 @@ def Cart2sph(xyz):
     
     return sph
 
-def gen_side_by_side(n_frames, AF, camera_pos):
+def gen_side_by_side(n_frames, AF, camera_pos, stop_f):
     # AF = r_cam_frame
     # \AF\
     from numpy import linalg as LA 
@@ -165,11 +165,11 @@ def gen_side_by_side(n_frames, AF, camera_pos):
     sph1 = Cart2sph(A1F)
     sph2 = Cart2sph(A2F)
         
-    print('------AF is', AF)
-    print('------A from AF is', camera_pos['xyz'])
-    print('------F from AF is', camera_pos['xyz']-AF)
-    print('------F from A1F is', A1-A1F)
-    print('------F from A2F is', A2-A2F)
+    # print('------AF is', AF)
+  #   print('------A from AF is', camera_pos['xyz'])
+  #   print('------F from AF is', camera_pos['xyz']-AF)
+  #   print('------F from A1F is', A1-A1F)
+  #   print('------F from A2F is', A2-A2F)
     # three F are the same!
     
     # cross viewing
@@ -194,6 +194,20 @@ def gen_side_by_side(n_frames, AF, camera_pos):
     #        'alpha': camera_pos['alpha'],
     #        'beta': camera_pos['beta']
     #}
+    print('stop_f in gen_side by side', stop_f)
+    if stop_f:
+        print('xyz, alpha, beta', camera_pos1['xyz'].shape, camera_pos1['alpha'].shape, camera_pos1['beta'].shape)
+        camera_pos1 = {
+            'xyz': A1[stop_f:, :],
+            'alpha': (90. - np.degrees(sph1[:,1]))[stop_f:],
+            'beta': np.degrees(sph1[:,2])[stop_f:]
+        }
+        camera_pos2 = {
+            'xyz': A2[stop_f:, :],
+            'alpha': (90. - np.degrees(sph2[:,1]))[stop_f:],
+            'beta': np.degrees(sph2[:,2])[stop_f:]
+        }
+        print('camera pos 1 2 in gen_side by side', camera_pos1, camera_pos1['xyz'].shape)
     return [camera_pos1, camera_pos2]
 
 #---------------grand_tour_path--------------------
@@ -236,7 +250,7 @@ def grand_tour_path(n_frames=10,
                      r_vcent=(0.,0.,0.), R0_v=500., Z0_v=500., v_scaling=1.,
                      close_path=True, close_dist=500.,
                      # path_img=pan1+'3d/allsky_2MASS/grand-tour/simple-loop-att-v2.png')
-                     path_img=None, side_by_side=False):
+                     path_img=None, side_by_side=False, stop_f=None):
 #def gen_interpolated_path(r_anchor, n_frames=10,
                           # cam_k=0.0007, cam_gamma=0.1,
                          #  r_att=(0.,0.,0.), R0_att=1000., Z0_att=300.,
@@ -375,7 +389,7 @@ def grand_tour_path(n_frames=10,
         
         fig.savefig(path_img,
                     dpi=200, bbox_inches='tight')
-        print('save in path_img?', path_img)
+        # print('save in path_img?', path_img)
     
     sph = Cart2sph(r_cam_frame)
     
@@ -386,9 +400,15 @@ def grand_tour_path(n_frames=10,
     }
     
     if not side_by_side:
+        if stop_f:
+            camera_pos = {
+                'xyz': r[stop_f:, :],
+                'alpha': (90. - np.degrees(sph[:,1]))[stop_f:],
+                'beta': np.degrees(sph[:,2])[stop_f:]
+            }
         return camera_pos
     else:
-        return gen_side_by_side(n_frames=n_frames, AF=r_cam_frame, camera_pos=camera_pos)
+        return gen_side_by_side(n_frames=n_frames, AF=r_cam_frame, camera_pos=camera_pos, stop_f=stop_f)
 
 
     '''
@@ -466,7 +486,7 @@ def grand_tour_path(n_frames=10,
     
 
 def circle_local(n_frames=20, r_x=50., r_y=50.,
-                 l_0=180., b_0=-10., d_stare=500., side_by_side=False):
+                 l_0=180., b_0=-10., d_stare=500., side_by_side=False, stop_f=None):
     '''
     Circle near the Sun.
     '''
@@ -492,7 +512,7 @@ def circle_local(n_frames=20, r_x=50., r_y=50.,
     sph = Cart2sph(dr)
     a = 90. - np.degrees(sph[:,1])
     b = np.degrees(sph[:,2])
-    print('----------sph is: ', sph)
+    # print('----------sph is: ', sph)
     #a = 90. * np.ones(n_frames, dtype='f8')
     #b = np.degrees(np.arctan2(y_0-y, x_0-x))
     
@@ -506,10 +526,18 @@ def circle_local(n_frames=20, r_x=50., r_y=50.,
         'xyz': r,
         'alpha': a,
         'beta': b
-    }
+    }                
+    print('stop_f', stop_f)
     if side_by_side:
-        return gen_side_by_side(n_frames=n_frames, AF=dr, camera_pos=camera_pos)
+        return gen_side_by_side(n_frames=n_frames, AF=dr, camera_pos=camera_pos, stop_f=stop_f)
     else:
+        if stop_f:
+            camera_pos = {
+                'xyz': r[stop_f:, :],
+                'alpha': a[stop_f:],
+                'beta': b[stop_f:]
+            }
+            print('stopped camera_pos', camera_pos)
         return camera_pos   
 
     

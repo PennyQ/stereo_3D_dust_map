@@ -58,8 +58,16 @@ print('av_sfd', Av_sfd.shape)
 # to get rid of axis and margins
 #fig = plt.figure(figsize=(34, 17))
 
-ax.imshow(Av_sfd,origin='lower', vmin=0, vmax=5,aspect='normal')#extent=[-180,180,-90,90])
+ax.imshow(Av_sfd,origin='lower', vmin=0, vmax=5,aspect='normal', extent=[-180,180,-90,90])
+lonlist=range(-180, 180, 30) # 150, 120, 90 (every 30)
+for lon in lonlist:
+    ax.axvline(lon,alpha=0.6,c='grey')
+    ax.text(lon, 0, str(lon), fontsize=20, color='red')
 
+latlist=range(-90, 90, 30)
+for lat in latlist:
+    ax.axhline(lat, alpha=0.6, c='grey')
+    ax.text(0, lat, str(lat), fontsize=20, color='red')
 
 
 #plt.axis('off')
@@ -67,5 +75,5 @@ ax.imshow(Av_sfd,origin='lower', vmin=0, vmax=5,aspect='normal')#extent=[-180,18
 #ax.axes.get_yaxis().set_visible(False)
 
 # plt.savefig('sfd-dust-map-test.JPG', dpi=150, transparent=True, bbox_inches='tight', pad_inches=0)
-fig.savefig('2D_dust_map.JPG', dpi=150, transparent=True)
+fig.savefig('2D_dust_map_test.JPG', dpi=150, transparent=True)
 #SaveFigureAsImage('sfd-dust-map-test.JPG', plt.gcf())
