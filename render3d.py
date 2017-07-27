@@ -598,10 +598,10 @@ def main():
         if stop_f: 
             f = plot_props['fname']
             plot_props['fname'] = f.split('.png')[0]+'-stop.png'
-        gen_movie_frames(map_fname, plot_props,
-                         camera_pos, camera_props,
-                         label_props, labels,
-                         n_procs=n_procs, verbose=True, axis_on=axis_on)  
+        # gen_movie_frames(map_fname, plot_props,
+#                          camera_pos, camera_props,
+#                          label_props, labels,
+#                          n_procs=n_procs, verbose=True, axis_on=axis_on)
                            
     elif type(camera_pos) is list:
         # render left camera

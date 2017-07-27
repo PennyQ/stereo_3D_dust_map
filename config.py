@@ -37,7 +37,7 @@ except ValueError:
     f = 20
 
 '''Set camera render mode'''
-mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)|local dust(ld)|nw-270(nw)]'))
+mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)|local dust(ld)|nw-270(nw)]|equirectangular[eq]'))
 logfile.write('Which camera mode? ' + mode + '\n')
 if mode == 'cl':
     fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'    
@@ -63,6 +63,11 @@ if mode == 'ld':
 if mode == 'nw':
     fname = '/3d/allsky_2MASS/nw-270/nw-270.png'
     camera_pos = nw_270(n_frames=f)
+    axis_on = False
+
+if mode == 'eq':
+    fname = '/3d/allsky_2MASS/equirectangular/equirectangular.png'
+    camera_pos = equirectangular_route(n_frames=f)
     axis_on = False
 
 # Initiate processing core numbers

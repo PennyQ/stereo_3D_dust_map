@@ -2,6 +2,8 @@
 # TODO: add another camera should also goes here
 import numpy as np
 import scipy
+from math import sqrt, radians
+import matplotlib.pyplot as plt
 
 def Orion_flythrough(n_frames=10):
     '''
@@ -402,7 +404,7 @@ def grand_tour_path(n_frames=10,
     if not side_by_side:
         if stop_f:
             camera_pos = {
-                'xyz': r[stop_f:, :],
+                'xyz': r_frame[stop_f:, :],
                 'alpha': (90. - np.degrees(sph[:,1]))[stop_f:],
                 'beta': np.degrees(sph[:,2])[stop_f:]
             }
@@ -553,4 +555,37 @@ def nw_270(n_frames=20, d_stare=500.):
         'alpha': 90.-theta,
         'beta': np.degrees(phi)
     }
+    return camera_pos
+    
+def equirectangular_route(n_frames=72, d_stare=500.):  # 30*30 for each piece
+    # spherical coordinates in physics, cnetered on sun
+    piece_l = radians(sqrt(360*180/n_frames))
+
+    '''
+    we only consider piece height=width
+    as the frame here is 72, each piece will be 30*30, so theta will have 6 = srqt(72/2) steps, phi will have 12 steps
+    so the array of theta and phi will match:
+    165
+    135
+    105
+    --0--30--...---360
+    75
+    45
+    15
+    the scan will start from [165, 0] -> [135, 0] ->...[15, 0] -> [175, 30]...
+    we can change the scan order by change the tile and repeat below
+    '''
+    theta = np.tile(np.linspace(-np.pi/2+piece_l/2, np.pi/2-piece_l/2, sqrt(n_frames/2)),int(sqrt(n_frames/2)*2))
+    phi = np.repeat(np.linspace(0., 2.*np.pi, sqrt(n_frames/2)*2+1)[:-1], int(sqrt(n_frames/2)))
+    # theta = np.zeros(n_frames)
+    xyz = np.zeros((n_frames, 3))
+    print(np.degrees(theta))
+    
+    camera_pos = {
+        'xyz': xyz,
+        'alpha': 90.-np.degrees(theta),
+        'beta': np.degrees(phi)
+    }
+    print('alpha', camera_pos['alpha'], camera_pos['alpha'].shape)
+    print('beta', camera_pos['beta'], camera_pos['beta'].shape)
     return camera_pos
