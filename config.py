@@ -25,12 +25,12 @@ map_fname = os.environ['MAP_FNAME']
 # camera_pos = circle_local(n_frames=3, l_0=30., b_0=5.)
 axis_on = True
 
-stop_f = int(raw_input('Render interrupt at (0 mean none)[file name change required in render3d.py]'))
+stop_f = int(raw_input('Restart from frame number [0]') or 0)
 if stop_f == 0:
     stop_f = None
 
 try:
-    f = int(raw_input('How many frames? '))
+    f = int(raw_input('How many frames in total?'))
     logfile.write('How many frames? '+ str(f)+ '\n')
 except ValueError:
     print('Not a number, default frame num as 20')
@@ -73,7 +73,7 @@ plot_props = {
     'fname': pan1 + fname, #'3d/allsky_2MASS/grand-tour/simple-loop-att-v2-lq.png',
     'figsize': (10, 7),  # figure aspect ratio
     'dpi': 100,
-    'n_averaged': 3,
+    'n_averaged': 1,
     'gamma': 1.,
     'R': 3.1,
     'scale_opacity': 1.,

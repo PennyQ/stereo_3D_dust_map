@@ -567,7 +567,7 @@ def gen_frame(mapper3d, camera_pos, camera_props,
 def main():
     #grand_tour_path(n_frames=100)
     #circle_local()
-    from config import map_fname, plot_props, camera_props, label_props, camera_pos, n_procs, axis_on
+    from config import map_fname, plot_props, camera_props, label_props, camera_pos, n_procs, axis_on, stop_f
     
     # Points to project to camera coordinates
     labels = {
@@ -594,8 +594,10 @@ def main():
     if type(camera_pos) is dict:
         # Generate frame
         n_procs = min([n_procs, len(camera_pos['alpha'])])
-        # f = plot_props['fname']
-        # plot_props['fname'] = f.split('.png')[0]+'-stop'+'.png'
+        
+        if stop_f: 
+            f = plot_props['fname']
+            plot_props['fname'] = f.split('.png')[0]+'-stop.png'
         gen_movie_frames(map_fname, plot_props,
                          camera_pos, camera_props,
                          label_props, labels,
@@ -604,7 +606,9 @@ def main():
     elif type(camera_pos) is list:
         # render left camera
         f = plot_props['fname']
-        plot_props['fname'] = f.split('.png')[0]+'-left'+'.png'
+        plot_props['fname'] = f.split('.png')[0]+'-left.png'
+        if stop_f:
+            plot_props['fname'] = f.split('.png')[0]+'-left-stop.png'
         n_procs = min([n_procs, len(camera_pos[0]['alpha'])])
         gen_movie_frames(map_fname, plot_props,
                          camera_pos[0], camera_props,
@@ -612,12 +616,25 @@ def main():
                          n_procs=n_procs, verbose=True, axis_on=axis_on)
 
         # render right camera                 
-        plot_props['fname'] = f.split('.png')[0]+'-right'+'.png'
+        plot_props['fname'] = f.split('.png')[0]+'-right.png'
+        if stop_f:
+            plot_props['fname'] = f.split('.png')[0]+'-right-stop.png'
         n_procs = min([n_procs, len(camera_pos[1]['alpha'])])                         
         gen_movie_frames(map_fname, plot_props,
                          camera_pos[1], camera_props,
                          label_props, labels,
                          n_procs=n_procs, verbose=True, axis_on=axis_on)
+    
+    # rename stop files with correct frame number
+    if stop_f:
+        plot_dir = plot_props['fname'].split(plot_props['fname'].split('/')[-1])[0]
+        for fn in os.listdir(plot_dir):
+            if 'stop' in fn:
+                pre_name  = fn.split('-stop')[0]
+                print(fn.split('.')[1])
+                img_num = int(fn.split('.')[1])
+                img_num = img_num + stop_f  # this part should goes to render3d.py
+                os.rename(plot_dir+fn, plot_dir+pre_name + '.%05d.png' % img_num)
     return 0
 
 
