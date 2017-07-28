@@ -1,6 +1,7 @@
 from camera_route import *
 import os
 import datetime
+import math
 
 logfile = open('log.txt', 'a')
 logfile.truncate()
@@ -25,6 +26,8 @@ map_fname = os.environ['MAP_FNAME']
 # camera_pos = circle_local(n_frames=3, l_0=30., b_0=5.)
 
 axis_on = True
+fov = 110.
+figsize = (10, 7)
 
 stop_f = int(raw_input('Restart from frame number [0]') or 0)
 if stop_f == 0:
@@ -70,6 +73,9 @@ if mode == 'eq':
     fname = '/3d/allsky_2MASS/equirectangular/equirectangular.png'
     camera_pos = equirectangular_route(n_frames=f)
     axis_on = False
+    # fov is calculated depending on frames
+    fov = 180/(math.sqrt(f/2))
+    figsize=(10, 10)
 
 # Initiate processing core numbers
 n_procs = 10
@@ -77,7 +83,7 @@ n_procs = 10
 # Misc settings
 plot_props = {
     'fname': pan1 + fname, #'3d/allsky_2MASS/grand-tour/simple-loop-att-v2-lq.png',
-    'figsize': (10, 7),  # figure aspect ratio
+    'figsize': figsize,  # figure aspect ratio
     'dpi': 100,
     'n_averaged': 1,
     'gamma': 1.,
@@ -101,12 +107,13 @@ try:
 except ValueError:
     print('Not a number, default as 2')
     q = 2
+    
 # Camera properties
 camera_props = {
     'proj_name': 'stereo',
-    'fov': 110.,  # degrees
-    'n_x': 200*q, # num of pixels
-    'n_y': 140*q,
+    'fov': fov,  # degrees
+    'n_x': 20*figsize[0]*q, # num of pixels
+    'n_y': 20*figsize[1]*q,
     'n_z': 500*q,
     'dr': 10./q,  # 10pc per step
     'z_0': 1., #(0., 0., 0.)
