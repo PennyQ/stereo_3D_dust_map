@@ -557,7 +557,7 @@ def nw_270(n_frames=20, d_stare=500.):
     }
     return camera_pos
     
-def equirectangular_route(n_frames=72, d_stare=500.):  # 30*30 for each piece
+def equirectangular_route(n_frames=72, d_stare=500., side_by_side=False, stop_f=None):  # 30*30 for each piece
     # spherical coordinates in physics, cnetered on sun
     piece_l = radians(sqrt(360*180/n_frames))
 
@@ -588,4 +588,25 @@ def equirectangular_route(n_frames=72, d_stare=500.):  # 30*30 for each piece
     }
     print('alpha', camera_pos['alpha'], camera_pos['alpha'].shape)
     print('beta', camera_pos['beta'], camera_pos['beta'].shape)
-    return camera_pos
+    # return camera_pos
+
+    x_0 = d_stare * np.sin(theta) * np.sin(phi)
+    y_0 = d_stare * np.sin(theta) * np.cos(phi)
+    z_0 = d_stare * np.cos(theta)
+    
+    dr = np.empty((n_frames,3), dtype='f8')
+    dr[:,0] = x_0 
+    dr[:,1] = y_0 
+    dr[:,2] = z_0
+    
+    if side_by_side:
+        return gen_side_by_side(n_frames=n_frames, AF=dr, camera_pos=camera_pos, stop_f=stop_f)
+    else:
+        if stop_f:
+            camera_pos = {
+                'xyz': r[stop_f:, :],
+                'alpha': a[stop_f:],
+                'beta': b[stop_f:]
+            }
+            print('stopped camera_pos', camera_pos)
+        return camera_pos

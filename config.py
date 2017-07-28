@@ -42,23 +42,21 @@ except ValueError:
 
 '''Set camera render mode'''
 mode = str(raw_input('Which camera mode? [circle local(cl)|grand tour(gt)|local dust(ld)|nw-270(nw)]|equirectangular[eq]'))
+b = raw_input('Render side-by-side? [y/n] ')
+if str(b) == 'y':
+    side_by_side = True
+if str(b) == 'n':
+    side_by_side = False
 logfile.write('Which camera mode? ' + mode + '\n')
 if mode == 'cl':
     fname = '/3d/allsky_2MASS/circle-local/dust-map-cl.png'    
-    b = raw_input('Render side-by-side? [y/n] ')
-    if str(b) == 'y':
-        camera_pos = circle_local(n_frames=f, side_by_side=True, stop_f=stop_f)
-    if str(b) == 'n':
-        camera_pos = circle_local(n_frames=f, stop_f=stop_f)
+    camera_pos = circle_local(n_frames=f, side_by_side=side_by_side, stop_f=stop_f)
         
 # TODO: add side-by-side render
 if mode == 'gt':
     fname = '/3d/allsky_2MASS/grand-tour/dust-map-gt.png'
     b = raw_input('Render side-by-side? [y/n] ')
-    if str(b) == 'y':
-        camera_pos = grand_tour_path(n_frames=f, side_by_side=True, stop_f=stop_f)
-    if str(b) == 'n':
-        camera_pos = grand_tour_path(n_frames=f, stop_f=stop_f)
+    camera_pos = grand_tour_path(n_frames=f, side_by_side=side_by_side, stop_f=stop_f)
     
 if mode == 'ld':
     fname = '/3d/allsky_2MASS/local-dust/dust-map-ld.png'
@@ -70,8 +68,8 @@ if mode == 'nw':
     axis_on = False
 
 if mode == 'eq':
-    fname = '/3d/allsky_2MASS/equirectangular/equirectangular.png'
-    camera_pos = equirectangular_route(n_frames=f)
+    fname = '/3d/allsky_2MASS/equirectangular/equirectangular.png'    
+    camera_pos = equirectangular_route(n_frames=f, side_by_side = side_by_side, stop_f=stop_f)
     axis_on = False
     # fov is calculated depending on frames
     fov = 180/(math.sqrt(f/2))
