@@ -30,8 +30,11 @@ import datetime
 from libxmp import XMPFiles, XMPMeta 
 import pytz
 
-
-xmpfile = XMPFiles(file_path='2D_dust_map.JPG', open_forupdate=True)
+try:
+    xmpfile = XMPFiles(file_path=raw_input('image file path:'), open_forupdate=True)
+except:
+    print('file path invalid!')
+    exit()
 # xmp = XMPMeta() 
 xmp = xmpfile.get_xmp()
 if xmp is None:
