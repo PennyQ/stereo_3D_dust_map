@@ -273,8 +273,6 @@ def gen_frame_worker(mapper3d, frame_q, lock,
             print 'Worker finished.'
             return
 
-
-
 def gen_frame(mapper3d, camera_pos, camera_props,
                         plot_props, label_props,
                         labels, axis_on, **kwargs):
@@ -452,7 +450,12 @@ def gen_frame(mapper3d, camera_pos, camera_props,
     extent = [-w, w, h, -h]
     
     fig = plt.figure(figsize=figsize, dpi=dpi)
-    ax = fig.add_subplot(1,1,1)
+    if not axis_on: 
+        ax=plt.Axes(fig,[0.,0.,1.,1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+    else:
+        ax = fig.add_subplot(1,1,1)
     
     scene_time = time.time()
     # Render scene
@@ -483,6 +486,8 @@ def gen_frame(mapper3d, camera_pos, camera_props,
     ax.set_xlim([-w, w])
     ax.set_ylim([-h, h])
     
+        
+
     if axis_on: 
         # Project position of Sun and coord-system axes
         r_ovplt = {}
@@ -545,16 +550,16 @@ def gen_frame(mapper3d, camera_pos, camera_props,
     title += r'%d \, \mathrm{pc}'    % (r_cam[2])
     title += r'\right)$'
     
-    ax.set_title(title, fontsize=20)
-    
-    fig.subplots_adjust(left=0.05, right=0.98, bottom=0.05, top=0.95)
+    if axis_on:
+        ax.set_title(title, fontsize=20)
+        fig.subplots_adjust(left=0.05, right=0.98, bottom=0.05, top=0.95)
     
     lock = kwargs.pop('lock', None)
     
     if lock != None:
         lock.acquire()
     
-    fig.savefig(plt_fname, dpi=dpi, bbox_inches='tight')
+    fig.savefig(plt_fname, dpi=dpi)#, bbox_inches='tight')
     
     if lock != None:
         lock.release()
@@ -598,10 +603,10 @@ def main():
         if stop_f: 
             f = plot_props['fname']
             plot_props['fname'] = f.split('.png')[0]+'-stop.png'
-        # gen_movie_frames(map_fname, plot_props,
-#                          camera_pos, camera_props,
-#                          label_props, labels,
-#                          n_procs=n_procs, verbose=True, axis_on=axis_on)
+        gen_movie_frames(map_fname, plot_props,
+                         camera_pos, camera_props,
+                         label_props, labels,
+                         n_procs=n_procs, verbose=True, axis_on=axis_on)
                            
     elif type(camera_pos) is list:
         # render left camera

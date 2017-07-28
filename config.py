@@ -23,6 +23,7 @@ map_fname = os.environ['MAP_FNAME']
 #camera_pos = Orion_flythrough(n_frames=400)
 #camera_pos = grand_tour_path(n_frames=20)#1600)
 # camera_pos = circle_local(n_frames=3, l_0=30., b_0=5.)
+
 axis_on = True
 
 stop_f = int(raw_input('Restart from frame number [0]') or 0)
