@@ -10,11 +10,12 @@ To view the metadata, you can use exiftool as typing in terminal:
 `>>> exiftool -b -xmp 2D_dust_map.JPG > output.xmp`
 
 Or use Python terminal as:
-```from libxmp.utils import XMPFiles
+```
+from libxmp.utils import XMPFiles
 xmpfile=XMPFiles(file_path=‘2D_dust_map.JPG')
 xmp=xmpfile.get_xmp()
-print(xmp)```
-
+print(xmp)
+```
 
 ### Tips on using equirectangular_rendering mode:
 1. The frame number divided by 2 must be a square number, this is because we assume the width and height equals for each tile, and the equiretangular projection is a 360*180 map.
