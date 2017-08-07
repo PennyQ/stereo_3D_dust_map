@@ -21,6 +21,12 @@ Please modify the data and output directory in `config.py`, and then run `render
 
 The script `side-to-side.sh` to generate a side-by-side video is also in this repo, please copy it to your output dir and modify it with correct figure name. It requires frame images for left and right camera.
 
+### Resume the rendering from stopping point
+`Restart from frame number [0]` 
+
+    Default as no stop, press enter or input 0. 
+    When a non-zero number is entered, the code will start from generate the frame with input number, e.g. Restart from 5, total frames 10, then the Frame 5 will be generated until Frame 9 (frame number starts from 0).
+
 ### Trouble shooting:
 1. Error: sh: latex: command not found on MacOS, details as below:
 
