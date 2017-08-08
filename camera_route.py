@@ -2,6 +2,8 @@
 # TODO: add another camera should also goes here
 import numpy as np
 import scipy
+from math import sqrt, radians
+import matplotlib.pyplot as plt
 
 def Orion_flythrough(n_frames=10):
     '''
@@ -140,6 +142,7 @@ def gen_side_by_side(n_frames, AF, camera_pos, stop_f):
     # AA1 vector or delta = N x AF / (\N\*\AF\*sin(theta)) * |AA1\
     delta = np.empty((n_frames, 3), dtype='f8')
     c = np.cross(AF, north)
+    print('c', c)  # some c is (0, 0, 0) -> AF is (0 0, k)
     #sin_theta = np.sin(np.radians(camera_pos['alpha']))
     delta = c /LA.norm(c, axis=1)[:, None]* (cam_d/2)
     
@@ -402,7 +405,7 @@ def grand_tour_path(n_frames=10,
     if not side_by_side:
         if stop_f:
             camera_pos = {
-                'xyz': r[stop_f:, :],
+                'xyz': r_frame[stop_f:, :],
                 'alpha': (90. - np.degrees(sph[:,1]))[stop_f:],
                 'beta': np.degrees(sph[:,2])[stop_f:]
             }
@@ -554,3 +557,65 @@ def nw_270(n_frames=20, d_stare=500.):
         'beta': np.degrees(phi)
     }
     return camera_pos
+    
+def equirectangular_route(n_frames=72, d_stare=500., side_by_side=False, stop_f=None):  # 30*30 for each piece
+    # spherical coordinates in physics, cnetered on sun
+    piece_l = radians(sqrt(360*180/n_frames))
+
+    '''
+    we only consider piece height=width
+    as the frame here is 72, each piece will be 30*30, so theta will have 6 = srqt(72/2) steps, phi will have 12 steps
+    so the array of theta and phi will match:
+    165
+    135
+    105
+    --0--30--...---360
+    75
+    45
+    15
+    the scan will start from [165, 0] -> [135, 0] ->...[15, 0] -> [175, 30]...
+    we can change the scan order by change the tile and repeat below
+    '''
+    b = np.tile(np.linspace(-np.pi/2+piece_l/2, np.pi/2-piece_l/2, sqrt(n_frames/2)),int(sqrt(n_frames/2)*2))
+    l = np.repeat(np.linspace(0., 2.*np.pi, sqrt(n_frames/2)*2+1)[:-1], int(sqrt(n_frames/2)))
+    # theta = np.zeros(n_frames)
+    xyz = np.zeros((n_frames, 3))
+    print('l', np.degrees(l), 'b', np.degrees(b))
+    
+    camera_pos = {
+        'xyz': xyz,
+        'alpha': 90.-np.degrees(b),
+        'beta': np.degrees(l)
+    }
+    # print('alpha', camera_pos['alpha'], camera_pos['alpha'].shape)
+    # print('beta', camera_pos['beta'], camera_pos['beta'].shape)
+    # return camera_pos
+    # print('theta', theta)
+    # print('phi', phi)
+    
+    x_0 = d_stare * np.cos(l) * np.cos(b)
+    y_0 = d_stare * np.sin(l) * np.cos(b)
+    z_0 = d_stare * np.sin(b)
+    
+    # x_0 = d_stare * np.sin(theta) * np.sin(phi)
+    # y_0 = d_stare * np.sin(theta) * np.cos(phi)
+    # z_0 = d_stare * np.cos(theta)
+    
+    dr = np.empty((n_frames,3), dtype='f8')
+    dr[:,0] = x_0 
+    dr[:,1] = y_0 
+    dr[:,2] = z_0
+    
+    print('dr', dr)
+    
+    if side_by_side:
+        return gen_side_by_side(n_frames=n_frames, AF=dr, camera_pos=camera_pos, stop_f=stop_f)
+    else:
+        if stop_f:
+            camera_pos = {
+                'xyz': xyz[stop_f:, :],
+                'alpha': (90.-np.degrees(b))[stop_f:],
+                'beta': np.degrees(l)[stop_f:]
+            }
+        #     print('stopped camera_pos', camera_pos)
+        return camera_pos
